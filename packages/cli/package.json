@@ -1,8 +1,24 @@
 {
   "name": "@lsst25/pik",
   "version": "0.0.1",
-  "type": "module",
   "description": "CLI tool for switching config options in source files",
+  "type": "module",
+  "license": "MIT",
+  "author": "Yurii Tatar <lsst25@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsst25/pik.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "cli",
+    "config",
+    "configuration",
+    "switch",
+    "toggle",
+    "environment",
+    "env"
+  ],
   "bin": {
     "pik": "./dist/bin/pik.js"
   },

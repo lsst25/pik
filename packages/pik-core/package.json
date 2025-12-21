@@ -1,7 +1,22 @@
 {
   "name": "@lsst25/pik-core",
   "version": "0.0.1",
+  "description": "Core library for parsing and switching @pik config markers",
   "type": "module",
+  "license": "MIT",
+  "author": "Yurii Tatar <lsst25@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lsst25/pik.git",
+    "directory": "packages/pik-core"
+  },
+  "keywords": [
+    "config",
+    "configuration",
+    "switch",
+    "toggle",
+    "environment"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
