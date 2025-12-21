@@ -1,11 +1,11 @@
-# @lsst25/pik-core
+# @lsst/pik-core
 
 Core library for parsing and switching `@pik` config markers in source files.
 
 ## Installation
 
 ```bash
-npm install @lsst25/pik-core
+npm install @lsst/pik-core
 ```
 
 ## Usage

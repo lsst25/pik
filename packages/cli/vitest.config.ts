@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@lsst25/pik',
+    name: '@lsst/pik',
     watch: false,
     globals: true,
     environment: 'node',

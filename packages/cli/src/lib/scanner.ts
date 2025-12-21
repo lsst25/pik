@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import { glob } from 'glob';
 import { extname } from 'path';
-import { Parser, type Selector } from '@lsst25/pik-core';
+import { Parser, type Selector } from '@lsst/pik-core';
 import type { PikConfig } from './config.js';
 
 export interface FileResult {

@@ -1,11 +1,11 @@
-# @lsst25/pik
+# @lsst/pik
 
 CLI tool for switching config options in source files using `@pik` markers.
 
 ## Installation
 
 ```bash
-npm install -g @lsst25/pik
+npm install -g @lsst/pik
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ const env = 'LOCAL';      // @pik:option LOCAL
 Create `pik.config.ts` in your project root:
 
 ```typescript
-import { defineConfig } from '@lsst25/pik';
+import { defineConfig } from '@lsst/pik';
 
 export default defineConfig({
   include: ['src/**/*.ts', '.env'],

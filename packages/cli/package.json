@@ -1,5 +1,5 @@
 {
-  "name": "@lsst25/pik",
+  "name": "@lsst/pik",
   "version": "0.0.1",
   "description": "CLI tool for switching config options in source files",
   "type": "module",
@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",
-    "@lsst25/pik-core": "^0.0.1",
+    "@lsst/pik-core": "^0.0.1",
     "commander": "^14.0.2",
     "glob": "^10.5.0",
     "picocolors": "^1.1.1",

@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 import { extname, relative } from 'path';
 import { select } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { SingleSwitcher, type Selector } from '@lsst25/pik-core';
+import { SingleSwitcher, type Selector } from '@lsst/pik-core';
 import { loadConfig } from '../config.js';
 import { Scanner, type FileResult } from '../scanner.js';
 

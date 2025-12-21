@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { extname, relative } from 'path';
 import pc from 'picocolors';
-import { SingleSwitcher } from '@lsst25/pik-core';
+import { SingleSwitcher } from '@lsst/pik-core';
 import { loadConfig } from '../config.js';
 import { Scanner } from '../scanner.js';
 
