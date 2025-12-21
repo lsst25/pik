@@ -57,8 +57,19 @@
     }
   ],
   "release": {
+    "projects": ["packages/*"],
     "version": {
       "preVersionCommand": "npx nx run-many -t build"
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "file": "CHANGELOG.md",
+        "createRelease": "github"
+      }
+    },
+    "git": {
+      "commit": true,
+      "tag": true
     }
   },
   "targetDefaults": {

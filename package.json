@@ -3,7 +3,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "release": "nx release",
+    "release:patch": "nx release patch",
+    "release:minor": "nx release minor",
+    "release:major": "nx release major",
+    "release:dry": "nx release --dry-run"
+  },
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.8.0",
