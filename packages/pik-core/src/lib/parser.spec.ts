@@ -72,6 +72,26 @@ export MODE=production     # @pik:option production
       expect(result.selectors[0].options[1].isActive).toBe(true);
     });
 
+    it('should handle JS comments in HTML files', () => {
+      const content = `
+<script type="module">
+  // @pik:select Api
+  ...api.DEV, // @pik:option Develop
+  // ...api.LOCAL, // @pik:option Local
+</script>
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].name).toBe('Api');
+      expect(result.selectors[0].options[0].name).toBe('Develop');
+      expect(result.selectors[0].options[0].isActive).toBe(true);
+      expect(result.selectors[0].options[1].name).toBe('Local');
+      expect(result.selectors[0].options[1].isActive).toBe(false);
+    });
+
     it('should preserve original content in result', () => {
       const content = '// @pik:select Test\nconst x = 1; // @pik:option A';
 

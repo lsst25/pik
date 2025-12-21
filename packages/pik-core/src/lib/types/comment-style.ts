@@ -10,6 +10,9 @@ export class CommentStyle {
     tsx: new CommentStyle('//'),
     mjs: new CommentStyle('//'),
     mts: new CommentStyle('//'),
+    // HTML (for script tags)
+    html: new CommentStyle('//'),
+    htm: new CommentStyle('//'),
     // Config files
     yaml: new CommentStyle('#'),
     yml: new CommentStyle('#'),
