@@ -4,19 +4,45 @@ import { relative } from 'path';
 import { loadConfig } from '../config.js';
 import { Scanner } from '../scanner.js';
 
+interface ListOptions {
+  json?: boolean;
+}
+
 export const listCommand = new Command('list')
   .alias('ls')
   .description('List all selectors and their current state')
-  .action(async () => {
+  .option('--json', 'Output in JSON format')
+  .action(async (options: ListOptions) => {
     const config = await loadConfig();
 
     if (!config) {
-      console.error(pc.red('No pik.config.ts found'));
+      if (options.json) {
+        console.log(JSON.stringify({ error: 'No pik.config.ts found' }));
+      } else {
+        console.error(pc.red('No pik.config.ts found'));
+      }
       process.exit(1);
     }
 
     const scanner = new Scanner(config);
     const results = await scanner.scan();
+
+    if (options.json) {
+      const jsonOutput = results.flatMap((file) =>
+        file.selectors.map((selector) => ({
+          name: selector.name,
+          file: relative(process.cwd(), file.path),
+          line: selector.line,
+          activeOption: selector.options.find((o) => o.isActive)?.name ?? null,
+          options: selector.options.map((o) => ({
+            name: o.name,
+            isActive: o.isActive,
+          })),
+        }))
+      );
+      console.log(JSON.stringify(jsonOutput, null, 2));
+      return;
+    }
 
     if (results.length === 0) {
       console.log(pc.yellow('No selectors found'));
