@@ -1,3 +1,14 @@
+## 0.4.1 (2025-12-21)
+
+### 🚀 Features
+
+- **cli:** add --json flag to list command ([e6608e0](https://github.com/lsst25/pik/commit/e6608e0))
+- **nvim:** add neovim plugin with telescope integration ([271df60](https://github.com/lsst25/pik/commit/271df60))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.4.0 (2025-12-21)
 
 This was a version bump only, there were no code changes.
