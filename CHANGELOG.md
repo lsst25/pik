@@ -1,3 +1,13 @@
+## 0.2.0 (2025-12-21)
+
+### 🚀 Features
+
+- **pik-core:** add html/htm support for script tag comments ([160a3ef](https://github.com/lsst25/pik/commit/160a3ef))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.1.0 (2025-12-21)
 
 ### 🚀 Features
