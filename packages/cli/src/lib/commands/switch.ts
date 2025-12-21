@@ -12,6 +12,10 @@ interface SelectorChoice {
   selector: Selector;
 }
 
+function isExitPromptError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'ExitPromptError';
+}
+
 export const switchCommand = new Command('switch')
   .alias('sw')
   .description('Interactively switch options')
@@ -39,29 +43,46 @@ export const switchCommand = new Command('switch')
       }
     }
 
-    // Select which selector to switch
-    const selectedChoice = await select({
-      message: 'Select a selector to switch',
-      choices: choices.map((choice) => {
-        const relativePath = relative(process.cwd(), choice.file.path);
-        const activeOption = choice.selector.options.find((o) => o.isActive);
-        const current = activeOption ? pc.dim(` (${activeOption.name})`) : '';
+    let selectedChoice: SelectorChoice;
+    let selectedOption: string;
 
-        return {
-          name: `${choice.selector.name}${current} ${pc.dim(`- ${relativePath}`)}`,
-          value: choice,
-        };
-      }),
-    });
+    // Select which selector to switch
+    try {
+      selectedChoice = await select({
+        message: 'Select a selector to switch',
+        choices: choices.map((choice) => {
+          const relativePath = relative(process.cwd(), choice.file.path);
+          const activeOption = choice.selector.options.find((o) => o.isActive);
+          const current = activeOption ? pc.dim(` (${activeOption.name})`) : '';
+
+          return {
+            name: `${choice.selector.name}${current} ${pc.dim(`- ${relativePath}`)}`,
+            value: choice,
+          };
+        }),
+      });
+    } catch (error) {
+      if (isExitPromptError(error)) {
+        return;
+      }
+      throw error;
+    }
 
     // Select which option to activate
-    const selectedOption = await select({
-      message: `Select option for ${pc.bold(selectedChoice.selector.name)}`,
-      choices: selectedChoice.selector.options.map((option) => ({
-        name: option.isActive ? `${option.name} ${pc.green('(current)')}` : option.name,
-        value: option.name,
-      })),
-    });
+    try {
+      selectedOption = await select({
+        message: `Select option for ${pc.bold(selectedChoice.selector.name)}`,
+        choices: selectedChoice.selector.options.map((option) => ({
+          name: option.isActive ? `${option.name} ${pc.green('(current)')}` : option.name,
+          value: option.name,
+        })),
+      });
+    } catch (error) {
+      if (isExitPromptError(error)) {
+        return;
+      }
+      throw error;
+    }
 
     // Apply the change
     const extension = extname(selectedChoice.file.path);
