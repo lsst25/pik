@@ -18,6 +18,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 {
   "lsst25/pik",
   dependencies = { "nvim-telescope/telescope.nvim" },
+  build = "npm install -g @lsst/pik",
   config = function()
     require("pik").setup()
     require("telescope").load_extension("pik")
