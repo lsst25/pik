@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { extname, relative } from 'path';
-import { select } from '@inquirer/prompts';
+import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
 import { SingleSwitcher, type Selector } from '@lsst/pik-core';
 import { loadConfig } from '../config.js';
@@ -11,6 +11,9 @@ interface SelectorChoice {
   file: FileResult;
   selector: Selector;
 }
+
+const BACK_VALUE = Symbol('back');
+const EXIT_VALUE = Symbol('exit');
 
 function isExitPromptError(error: unknown): boolean {
   return error instanceof Error && error.name === 'ExitPromptError';
@@ -43,62 +46,83 @@ export const switchCommand = new Command('switch')
       }
     }
 
-    let selectedChoice: SelectorChoice;
-    let selectedOption: string;
+    // Main loop for navigation
+    while (true) {
+      let selectedChoice: SelectorChoice | typeof EXIT_VALUE;
 
-    // Select which selector to switch
-    try {
-      selectedChoice = await select({
-        message: 'Select a selector to switch',
-        choices: choices.map((choice) => {
-          const relativePath = relative(process.cwd(), choice.file.path);
-          const activeOption = choice.selector.options.find((o) => o.isActive);
-          const current = activeOption ? pc.dim(` (${activeOption.name})`) : '';
+      // Select which selector to switch
+      try {
+        selectedChoice = await select({
+          message: 'Select a selector to switch',
+          choices: [
+            ...choices.map((choice) => {
+              const relativePath = relative(process.cwd(), choice.file.path);
+              const activeOption = choice.selector.options.find((o) => o.isActive);
+              const current = activeOption ? pc.dim(` (${activeOption.name})`) : '';
 
-          return {
-            name: `${choice.selector.name}${current} ${pc.dim(`- ${relativePath}`)}`,
-            value: choice,
-          };
-        }),
-      });
-    } catch (error) {
-      if (isExitPromptError(error)) {
+              return {
+                name: `${choice.selector.name}${current} ${pc.dim(`- ${relativePath}`)}`,
+                value: choice as SelectorChoice | typeof EXIT_VALUE,
+              };
+            }),
+            new Separator(),
+            { name: pc.dim('Exit'), value: EXIT_VALUE },
+          ],
+        });
+      } catch (error) {
+        if (isExitPromptError(error)) {
+          return;
+        }
+        throw error;
+      }
+
+      if (selectedChoice === EXIT_VALUE) {
         return;
       }
-      throw error;
-    }
 
-    // Select which option to activate
-    try {
-      selectedOption = await select({
-        message: `Select option for ${pc.bold(selectedChoice.selector.name)}`,
-        choices: selectedChoice.selector.options.map((option) => ({
-          name: option.isActive ? `${option.name} ${pc.green('(current)')}` : option.name,
-          value: option.name,
-        })),
-      });
-    } catch (error) {
-      if (isExitPromptError(error)) {
-        return;
+      // Select which option to activate
+      let selectedOption: string | typeof BACK_VALUE;
+      try {
+        selectedOption = await select({
+          message: `Select option for ${pc.bold(selectedChoice.selector.name)}`,
+          choices: [
+            ...selectedChoice.selector.options.map((option) => ({
+              name: option.isActive ? `${option.name} ${pc.green('(current)')}` : option.name,
+              value: option.name as string | typeof BACK_VALUE,
+            })),
+            new Separator(),
+            { name: pc.dim('← Back'), value: BACK_VALUE },
+          ],
+        });
+      } catch (error) {
+        if (isExitPromptError(error)) {
+          return;
+        }
+        throw error;
       }
-      throw error;
+
+      if (selectedOption === BACK_VALUE) {
+        continue; // Go back to selector selection
+      }
+
+      // Apply the change
+      const extension = extname(selectedChoice.file.path);
+      const switcher = SingleSwitcher.forExtension(extension);
+      const newContent = switcher.switch(
+        selectedChoice.file.content,
+        selectedChoice.selector,
+        selectedOption
+      );
+
+      await writeFile(selectedChoice.file.path, newContent);
+
+      const relativePath = relative(process.cwd(), selectedChoice.file.path);
+      console.log(
+        pc.green(
+          `✓ Set ${pc.bold(selectedChoice.selector.name)} to ${pc.bold(selectedOption)} in ${relativePath}`
+        )
+      );
+
+      return;
     }
-
-    // Apply the change
-    const extension = extname(selectedChoice.file.path);
-    const switcher = SingleSwitcher.forExtension(extension);
-    const newContent = switcher.switch(
-      selectedChoice.file.content,
-      selectedChoice.selector,
-      selectedOption
-    );
-
-    await writeFile(selectedChoice.file.path, newContent);
-
-    const relativePath = relative(process.cwd(), selectedChoice.file.path);
-    console.log(
-      pc.green(
-        `✓ Set ${pc.bold(selectedChoice.selector.name)} to ${pc.bold(selectedOption)} in ${relativePath}`
-      )
-    );
   });
