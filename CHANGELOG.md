@@ -1,3 +1,14 @@
+## 0.3.0 (2025-12-21)
+
+### 🚀 Features
+
+- **cli:** exit cleanly on Ctrl+C in interactive mode ([56fd7ca](https://github.com/lsst25/pik/commit/56fd7ca))
+- **cli:** add Back/Exit navigation in interactive mode ([73100e4](https://github.com/lsst25/pik/commit/73100e4))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.2.0 (2025-12-21)
 
 ### 🚀 Features

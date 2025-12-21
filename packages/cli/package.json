@@ -1,6 +1,6 @@
 {
   "name": "@lsst/pik",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "CLI tool for switching config options in source files",
   "type": "module",
   "license": "MIT",
