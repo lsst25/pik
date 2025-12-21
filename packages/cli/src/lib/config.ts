@@ -11,17 +11,27 @@ export function defineConfig(config: PikConfig): PikConfig {
   return config;
 }
 
-const CONFIG_FILE = 'pik.config.ts';
+const CONFIG_FILES = [
+  'pik.config.mts',
+  'pik.config.ts',
+  'pik.config.mjs',
+  'pik.config.js',
+  '.pik.config.mts',
+  '.pik.config.ts',
+  '.pik.config.mjs',
+  '.pik.config.js',
+];
 
 export async function loadConfig(cwd: string = process.cwd()): Promise<PikConfig | null> {
-  const configPath = resolve(cwd, CONFIG_FILE);
+  for (const configFile of CONFIG_FILES) {
+    const configPath = resolve(cwd, configFile);
 
-  if (!existsSync(configPath)) {
-    return null;
+    if (existsSync(configPath)) {
+      const configUrl = pathToFileURL(configPath).href;
+      const module = await import(configUrl);
+      return module.default as PikConfig;
+    }
   }
 
-  const configUrl = pathToFileURL(configPath).href;
-  const module = await import(configUrl);
-
-  return module.default as PikConfig;
+  return null;
 }

@@ -38,5 +38,33 @@ describe('config', () => {
       const config = await loadConfig(testDir);
       expect(config).toEqual({ include: ['src/**/*.ts'] });
     });
+
+    it('should load config from pik.config.mts', async () => {
+      const configContent = `
+        export default { include: ['lib/**/*.ts'] };
+      `;
+      await writeFile(join(testDir, 'pik.config.mts'), configContent);
+
+      const config = await loadConfig(testDir);
+      expect(config).toEqual({ include: ['lib/**/*.ts'] });
+    });
+
+    it('should prefer pik.config.mts over pik.config.ts', async () => {
+      await writeFile(join(testDir, 'pik.config.mts'), `export default { include: ['mts'] };`);
+      await writeFile(join(testDir, 'pik.config.ts'), `export default { include: ['ts'] };`);
+
+      const config = await loadConfig(testDir);
+      expect(config).toEqual({ include: ['mts'] });
+    });
+
+    it('should load config from .pik.config.mts (hidden)', async () => {
+      const configContent = `
+        export default { include: ['hidden/**/*.ts'] };
+      `;
+      await writeFile(join(testDir, '.pik.config.mts'), configContent);
+
+      const config = await loadConfig(testDir);
+      expect(config).toEqual({ include: ['hidden/**/*.ts'] });
+    });
   });
 });
