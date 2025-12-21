@@ -1,0 +1,33 @@
+{
+  "name": "@lsst25/pik",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "CLI tool for switching config options in source files",
+  "bin": {
+    "pik": "./dist/bin/pik.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@pik/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo"
+  ],
+  "dependencies": {
+    "@inquirer/prompts": "^8.1.0",
+    "@lsst25/pik-core": "^0.0.1",
+    "commander": "^14.0.2",
+    "glob": "^10.5.0",
+    "picocolors": "^1.1.1",
+    "tslib": "^2.3.0"
+  }
+}
