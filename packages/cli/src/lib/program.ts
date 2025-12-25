@@ -4,10 +4,11 @@ import pc from 'picocolors';
 import { loadConfig, isValidPlugin, type PikPlugin } from '@lsst/pik-core';
 import { selectPlugin } from '@lsst/pik-plugin-select';
 import { worktreePlugin } from '@lsst/pik-plugin-worktree';
+import { killportPlugin } from './plugins/killport.js';
 import pkg from '../../package.json' with { type: 'json' };
 
 // Built-in plugins
-const builtinPlugins: PikPlugin[] = [selectPlugin, worktreePlugin];
+const builtinPlugins: PikPlugin[] = [selectPlugin, worktreePlugin, killportPlugin];
 
 /**
  * Get plugins that are enabled in the config.
