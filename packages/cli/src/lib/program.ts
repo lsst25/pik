@@ -29,28 +29,40 @@ program.action(async () => {
       await cmd.parseAsync([], { from: 'user' });
     }
   } else {
-    // Multiple plugins - show selection menu
+    // Multiple plugins - show selection menu in a loop
     const EXIT_VALUE = Symbol('exit');
 
-    const selectedPlugin = await select({
-      message: 'Select a tool',
-      choices: [
-        ...plugins.map((plugin) => ({
-          name: `${pc.bold(plugin.name)} - ${plugin.description}`,
-          value: plugin,
-        })),
-        new Separator(),
-        { name: pc.dim('Exit'), value: EXIT_VALUE as typeof EXIT_VALUE | PikPlugin },
-      ],
-    });
+    while (true) {
+      let selectedPlugin: PikPlugin | typeof EXIT_VALUE;
 
-    if (selectedPlugin === EXIT_VALUE) {
-      return;
-    }
+      try {
+        selectedPlugin = await select({
+          message: 'Select a tool',
+          choices: [
+            ...plugins.map((plugin) => ({
+              name: `${pc.bold(plugin.name)} - ${plugin.description}`,
+              value: plugin as PikPlugin | typeof EXIT_VALUE,
+            })),
+            new Separator(),
+            { name: pc.dim('Exit'), value: EXIT_VALUE },
+          ],
+        });
+      } catch (error) {
+        // Handle Ctrl+C
+        if (error instanceof Error && error.name === 'ExitPromptError') {
+          return;
+        }
+        throw error;
+      }
 
-    const cmd = program.commands.find((c) => c.name() === selectedPlugin.command);
-    if (cmd) {
-      await cmd.parseAsync([], { from: 'user' });
+      if (selectedPlugin === EXIT_VALUE) {
+        return;
+      }
+
+      const cmd = program.commands.find((c) => c.name() === selectedPlugin.command);
+      if (cmd) {
+        await cmd.parseAsync([], { from: 'user' });
+      }
     }
   }
 });

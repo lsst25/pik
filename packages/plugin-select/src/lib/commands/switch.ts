@@ -13,7 +13,6 @@ interface SelectorChoice {
 }
 
 const BACK_VALUE = Symbol('back');
-const EXIT_VALUE = Symbol('exit');
 
 function isExitPromptError(error: unknown): boolean {
   return error instanceof Error && error.name === 'ExitPromptError';
@@ -48,7 +47,7 @@ export const switchCommand = new Command('switch')
 
     // Main loop for navigation
     while (true) {
-      let selectedChoice: SelectorChoice | typeof EXIT_VALUE;
+      let selectedChoice: SelectorChoice | typeof BACK_VALUE;
 
       // Select which selector to switch
       try {
@@ -62,11 +61,11 @@ export const switchCommand = new Command('switch')
 
               return {
                 name: `${choice.selector.name}${current} ${pc.dim(`- ${relativePath}`)}`,
-                value: choice as SelectorChoice | typeof EXIT_VALUE,
+                value: choice as SelectorChoice | typeof BACK_VALUE,
               };
             }),
             new Separator(),
-            { name: pc.dim('Exit'), value: EXIT_VALUE },
+            { name: pc.dim('← Back'), value: BACK_VALUE },
           ],
         });
       } catch (error) {
@@ -76,7 +75,7 @@ export const switchCommand = new Command('switch')
         throw error;
       }
 
-      if (selectedChoice === EXIT_VALUE) {
+      if (selectedChoice === BACK_VALUE) {
         return;
       }
 
