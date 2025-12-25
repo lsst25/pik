@@ -1,26 +1,14 @@
 {
-  "name": "@lsst/pik",
+  "name": "@lsst/pik-plugin-worktree",
   "version": "0.4.2",
-  "description": "CLI tool for switching config options in source files",
+  "description": "Git worktree management plugin for pik CLI",
   "type": "module",
   "license": "MIT",
   "author": "Yurii Tatar <lsst25@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lsst25/pik.git",
-    "directory": "packages/cli"
-  },
-  "keywords": [
-    "cli",
-    "config",
-    "configuration",
-    "switch",
-    "toggle",
-    "environment",
-    "env"
-  ],
-  "bin": {
-    "pik": "./dist/bin/pik.js"
+    "directory": "packages/plugin-worktree"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -39,11 +27,10 @@
     "!**/*.tsbuildinfo"
   ],
   "dependencies": {
-    "@inquirer/prompts": "^8.1.0",
     "@lsst/pik-core": "*",
-    "@lsst/pik-plugin-select": "*",
-    "@lsst/pik-plugin-worktree": "*",
+    "@inquirer/prompts": "^8.1.0",
     "commander": "^14.0.2",
+    "glob": "^10.5.0",
     "picocolors": "^1.1.1"
   }
 }

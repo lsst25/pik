@@ -3,10 +3,11 @@ import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
 import type { PikPlugin } from '@lsst/pik-core';
 import { selectPlugin } from '@lsst/pik-plugin-select';
+import { worktreePlugin } from '@lsst/pik-plugin-worktree';
 import pkg from '../../package.json' with { type: 'json' };
 
 // List of available plugins
-const plugins: PikPlugin[] = [selectPlugin];
+const plugins: PikPlugin[] = [selectPlugin, worktreePlugin];
 
 export const program = new Command()
   .name(pkg.name)
