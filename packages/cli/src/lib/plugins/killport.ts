@@ -2,7 +2,11 @@ import { execSync } from 'child_process';
 import type { Command } from 'commander';
 import { confirm, input } from '@inquirer/prompts';
 import pc from 'picocolors';
-import type { PikPlugin } from '@lsst/pik-core';
+import { loadConfig, type PikPlugin } from '@lsst/pik-core';
+
+interface KillportConfig {
+  defaultPort?: number;
+}
 
 interface ProcessInfo {
   pid: number;
@@ -89,6 +93,10 @@ export const killportPlugin: PikPlugin = {
       .argument('[port]', 'Port number (interactive if not provided)')
       .option('-y, --yes', 'Skip confirmation')
       .action(async (portArg: string | undefined, options: { yes?: boolean }) => {
+        const config = await loadConfig();
+        const killportConfig = (config?.killport as KillportConfig) || {};
+        const defaultPort = killportConfig.defaultPort;
+
         if (portArg) {
           const port = parseInt(portArg, 10);
 
@@ -99,10 +107,11 @@ export const killportPlugin: PikPlugin = {
 
           await killPortInteractive(port, options.yes ?? false);
         } else {
-          // Interactive mode - prompt for port number
+          // Interactive mode - prompt for port number with default
           try {
             const portInput = await input({
               message: 'Port number:',
+              default: defaultPort?.toString(),
               validate: (value) => {
                 const num = parseInt(value, 10);
                 if (isNaN(num) || num < 1 || num > 65535) {
