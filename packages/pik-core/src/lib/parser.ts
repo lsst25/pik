@@ -61,6 +61,21 @@ export class Parser {
    * Check if a line is commented out
    */
   private isLineCommented(line: string): boolean {
-    return line.trimStart().startsWith(this.commentStyle.lineComment);
+    const trimmed = line.trimStart();
+
+    // Check line comment
+    if (trimmed.startsWith(this.commentStyle.lineComment)) {
+      return true;
+    }
+
+    // Check block comment (single line only, e.g., <!-- code -->)
+    if (this.commentStyle.hasBlockComments) {
+      const { blockOpen, blockClose } = this.commentStyle;
+      if (trimmed.startsWith(blockOpen!) && trimmed.includes(blockClose!)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

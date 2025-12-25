@@ -21,6 +21,12 @@ export class SingleSwitcher extends Switcher {
 
     const lines = content.split('\n');
 
+    // Detect if any option uses block comment style
+    const useBlockStyle = selector.options.some((opt) => {
+      const line = lines[opt.line - 1];
+      return this.isBlockCommented(line);
+    });
+
     for (const option of selector.options) {
       const lineIndex = option.line - 1;
       const line = lines[lineIndex];
@@ -28,7 +34,7 @@ export class SingleSwitcher extends Switcher {
       if (option.name === optionName) {
         lines[lineIndex] = this.uncommentLine(line);
       } else {
-        lines[lineIndex] = this.commentLine(line);
+        lines[lineIndex] = this.commentLine(line, useBlockStyle);
       }
     }
 

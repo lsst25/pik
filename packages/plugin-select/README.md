@@ -49,7 +49,8 @@ pik select set <name> <option>  # Set directly
 
 | Extensions | Comment Style |
 |------------|---------------|
-| `.ts`, `.js`, `.tsx`, `.jsx`, `.mts`, `.mjs`, `.html`, `.htm` | `//` |
+| `.ts`, `.js`, `.tsx`, `.jsx`, `.mts`, `.mjs` | `//` |
+| `.html`, `.htm` | `//` and `<!-- -->` |
 | `.sh`, `.bash`, `.zsh`, `.py`, `.yaml`, `.yml`, `.env` | `#` |
 
 ## License

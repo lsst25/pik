@@ -64,7 +64,7 @@ pik select set Environment Production  # Set directly
 #### Supported File Types
 
 - JavaScript/TypeScript (`.js`, `.ts`, `.jsx`, `.tsx`, `.mjs`, `.mts`) - `//` comments
-- HTML (`.html`, `.htm`) - `//` comments (in script tags)
+- HTML (`.html`, `.htm`) - `//` and `<!-- -->` comments
 - Shell (`.sh`, `.bash`, `.zsh`) - `#` comments
 - Python (`.py`) - `#` comments
 - YAML (`.yaml`, `.yml`) - `#` comments

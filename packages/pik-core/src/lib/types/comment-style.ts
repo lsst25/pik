@@ -10,9 +10,9 @@ export class CommentStyle {
     tsx: new CommentStyle('//'),
     mjs: new CommentStyle('//'),
     mts: new CommentStyle('//'),
-    // HTML (for script tags)
-    html: new CommentStyle('//'),
-    htm: new CommentStyle('//'),
+    // HTML - supports both // (in script) and <!-- --> (in HTML)
+    html: new CommentStyle('//', '<!--', '-->'),
+    htm: new CommentStyle('//', '<!--', '-->'),
     // Config files
     yaml: new CommentStyle('#'),
     yml: new CommentStyle('#'),
@@ -28,10 +28,27 @@ export class CommentStyle {
 
   private static readonly defaultStyle = new CommentStyle('//');
 
+  /** Block comment opening (e.g., "<!--") */
+  public readonly blockOpen?: string;
+  /** Block comment closing (e.g., "-->") */
+  public readonly blockClose?: string;
+
   constructor(
     /** Line comment prefix (e.g., "//", "#") */
-    public readonly lineComment: string
-  ) {}
+    public readonly lineComment: string,
+    blockOpen?: string,
+    blockClose?: string
+  ) {
+    this.blockOpen = blockOpen;
+    this.blockClose = blockClose;
+  }
+
+  /**
+   * Check if this style supports block comments
+   */
+  get hasBlockComments(): boolean {
+    return !!(this.blockOpen && this.blockClose);
+  }
 
   /**
    * Get comment style for a file extension

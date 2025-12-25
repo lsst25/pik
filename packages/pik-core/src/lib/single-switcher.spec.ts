@@ -95,5 +95,44 @@ export MODE=development  # @pik:option development
       expect(newContent).toContain('# export MODE=development');
       expect(newContent).toContain('export MODE=production');
     });
+
+    it('should work with HTML block comments', () => {
+      const content = `
+<!-- @pik:select Theme -->
+<link rel="stylesheet" href="dark.css"> <!-- @pik:option Dark -->
+<!-- <link rel="stylesheet" href="light.css"> --> <!-- @pik:option Light -->
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const switcher = SingleSwitcher.forExtension('html');
+
+      const result = parser.parse(content);
+      const newContent = switcher.switch(content, result.selectors[0], 'Light');
+
+      expect(newContent).toContain('<!-- <link rel="stylesheet" href="dark.css">');
+      expect(newContent).toContain('<link rel="stylesheet" href="light.css">');
+      expect(newContent).not.toContain('// <link');
+    });
+
+    it('should preserve HTML block comment style when switching', () => {
+      const content = `
+<!-- @pik:select Script -->
+<!-- <script src="dev.js"></script> --> <!-- @pik:option Dev -->
+<script src="prod.js"></script> <!-- @pik:option Prod -->
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const switcher = SingleSwitcher.forExtension('html');
+
+      const result = parser.parse(content);
+      const newContent = switcher.switch(content, result.selectors[0], 'Dev');
+
+      const lines = newContent.split('\n');
+      // Active line should be uncommented
+      expect(lines[1]).toBe('<script src="dev.js"></script> <!-- @pik:option Dev -->');
+      // Inactive line should use block comment style
+      expect(lines[2]).toContain('<!-- <script src="prod.js"></script>');
+      expect(lines[2]).toContain('-->');
+    });
   });
 });

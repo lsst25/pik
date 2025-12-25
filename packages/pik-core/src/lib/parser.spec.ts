@@ -92,6 +92,46 @@ export MODE=production     # @pik:option production
       expect(result.selectors[0].options[1].isActive).toBe(false);
     });
 
+    it('should handle HTML block comments', () => {
+      const content = `
+<!-- @pik:select Theme -->
+<link rel="stylesheet" href="dark.css"> <!-- @pik:option Dark -->
+<!-- <link rel="stylesheet" href="light.css"> --> <!-- @pik:option Light -->
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].name).toBe('Theme');
+      expect(result.selectors[0].options).toHaveLength(2);
+      expect(result.selectors[0].options[0].name).toBe('Dark');
+      expect(result.selectors[0].options[0].isActive).toBe(true);
+      expect(result.selectors[0].options[1].name).toBe('Light');
+      expect(result.selectors[0].options[1].isActive).toBe(false);
+    });
+
+    it('should handle mixed JS and HTML comments in HTML files', () => {
+      const content = `
+<!-- @pik:select Stylesheet -->
+<link rel="stylesheet" href="main.css"> <!-- @pik:option Main -->
+<!-- <link rel="stylesheet" href="alt.css"> --> <!-- @pik:option Alt -->
+
+<script>
+  // @pik:select Api
+  const api = 'prod'; // @pik:option Prod
+  // const api = 'dev'; // @pik:option Dev
+</script>
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(2);
+      expect(result.selectors[0].name).toBe('Stylesheet');
+      expect(result.selectors[1].name).toBe('Api');
+    });
+
     it('should preserve original content in result', () => {
       const content = '// @pik:select Test\nconst x = 1; // @pik:option A';
 
