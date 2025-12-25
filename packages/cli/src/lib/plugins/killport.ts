@@ -92,10 +92,21 @@ export const killportPlugin: PikPlugin = {
       .description('Kill process running on a specific port')
       .argument('[port]', 'Port number (interactive if not provided)')
       .option('-y, --yes', 'Skip confirmation')
-      .action(async (portArg: string | undefined, options: { yes?: boolean }) => {
-        const config = await loadConfig();
-        const killportConfig = (config?.killport as KillportConfig) || {};
+      .option('--config', 'Output plugin config as JSON')
+      .option('--json', 'Use JSON output format')
+      .action(async (portArg: string | undefined, options: { yes?: boolean; config?: boolean; json?: boolean }) => {
+        const pikConfig = await loadConfig();
+        const killportConfig = (pikConfig?.killport as KillportConfig) || {};
         const defaultPort = killportConfig.defaultPort;
+
+        if (options.config) {
+          if (options.json) {
+            console.log(JSON.stringify(killportConfig));
+          } else {
+            console.log('defaultPort:', defaultPort ?? 'not set');
+          }
+          return;
+        }
 
         if (portArg) {
           const port = parseInt(portArg, 10);
