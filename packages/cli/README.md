@@ -1,6 +1,6 @@
 # @lsst/pik
 
-CLI tool for switching config options in source files using `@pik` markers.
+A developer toolkit with extensible plugins for common development tasks.
 
 ## Installation
 
@@ -8,9 +8,13 @@ CLI tool for switching config options in source files using `@pik` markers.
 npm install -g @lsst/pik
 ```
 
-## Usage
+## Plugins
 
-### 1. Add markers to your files
+### Select Plugin
+
+Switch config options in source files using `@pik` markers.
+
+#### 1. Add markers to your files
 
 ```typescript
 // @pik:select Environment
@@ -18,7 +22,7 @@ npm install -g @lsst/pik
 const env = 'LOCAL';      // @pik:option LOCAL
 ```
 
-### 2. Create a config file
+#### 2. Create a config file
 
 Create `pik.config.ts` in your project root:
 
@@ -26,31 +30,32 @@ Create `pik.config.ts` in your project root:
 import { defineConfig } from '@lsst/pik';
 
 export default defineConfig({
-  include: ['src/**/*.ts', '.env'],
+  select: {
+    include: ['src/**/*.ts', '.env'],
+  },
 });
 ```
 
-### 3. Run commands
+#### 3. Run commands
 
 ```bash
-# List all selectors and their current state
-pik list
+# Interactive mode
+pik select
+
+# List all selectors
+pik select list
 
 # Set a specific option
-pik set Environment DEV
-
-# Interactive mode
-pik switch
+pik select set Environment DEV
 ```
 
 ## Commands
 
 | Command | Alias | Description |
 |---------|-------|-------------|
-| `pik list` | `ls` | Show all selectors and their current state |
-| `pik set <selector> <option>` | - | Set an option directly |
-| `pik switch` | `sw` | Interactive selection mode |
-| `pik` | - | Same as `pik switch` |
+| `pik select` | `sel` | Interactive selection mode |
+| `pik select list` | `ls` | Show all selectors and their state |
+| `pik select set <selector> <option>` | - | Set an option directly |
 
 ## Marker Syntax
 
