@@ -6,7 +6,7 @@ export type { WorktreeConfig } from './lib/types.js';
 
 // Git utilities (for potential reuse)
 export {
-  git,
+  getGit,
   getRepoRoot,
   getCurrentBranch,
   isClean,
@@ -15,5 +15,7 @@ export {
   removeWorktree,
   listBranches,
   branchExists,
+  deleteBranch,
+  isWorktree,
   type Worktree,
 } from './lib/git.js';

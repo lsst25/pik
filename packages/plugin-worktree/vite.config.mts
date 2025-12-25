@@ -38,6 +38,7 @@ export default defineConfig(() => ({
         '@inquirer/prompts',
         'commander',
         'picocolors',
+        'simple-git',
       ],
     },
   },

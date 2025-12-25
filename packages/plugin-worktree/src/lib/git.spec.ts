@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  git,
+  getGit,
   getRepoRoot,
   getCurrentBranch,
   listWorktrees,
@@ -10,50 +10,40 @@ import {
 } from './git.js';
 
 describe('git utilities', () => {
-  describe('git', () => {
-    it('should execute basic git commands', () => {
-      const result = git(['--version']);
-      expect(result).toMatch(/^git version/);
-    });
-
-    it('should handle arguments with special shell characters', () => {
-      // This was failing before with execSync due to shell interpretation of ()
-      const branches = git(['branch', '--format=%(refname:short)']);
-      expect(typeof branches).toBe('string');
-    });
-
-    it('should throw on invalid git command', () => {
-      expect(() => git(['invalid-command-xyz'])).toThrow();
+  describe('getGit', () => {
+    it('should return a SimpleGit instance', () => {
+      const git = getGit();
+      expect(git).toBeDefined();
+      expect(typeof git.status).toBe('function');
     });
   });
 
   describe('getRepoRoot', () => {
-    it('should return the repository root path', () => {
-      const root = getRepoRoot();
+    it('should return the repository root path', async () => {
+      const root = await getRepoRoot();
       expect(root).toMatch(/pik$/);
     });
   });
 
   describe('getCurrentBranch', () => {
-    it('should return current branch name', () => {
-      const branch = getCurrentBranch();
+    it('should return current branch name', async () => {
+      const branch = await getCurrentBranch();
       expect(typeof branch).toBe('string');
       expect(branch.length).toBeGreaterThan(0);
     });
   });
 
   describe('listBranches', () => {
-    it('should return array of branch names', () => {
-      const branches = listBranches();
+    it('should return array of branch names', async () => {
+      const branches = await listBranches();
       expect(Array.isArray(branches)).toBe(true);
       expect(branches.length).toBeGreaterThan(0);
       // Should include main branch
       expect(branches).toContain('main');
     });
 
-    it('should handle format string with special characters', () => {
-      // Specifically tests that %(refname:short) doesn't cause shell issues
-      const branches = listBranches();
+    it('should return clean branch names without refs/heads prefix', async () => {
+      const branches = await listBranches();
       branches.forEach((branch) => {
         expect(typeof branch).toBe('string');
         expect(branch).not.toContain('refs/heads/');
@@ -62,29 +52,29 @@ describe('git utilities', () => {
   });
 
   describe('branchExists', () => {
-    it('should return true for existing branch', () => {
-      expect(branchExists('main')).toBe(true);
+    it('should return true for existing branch', async () => {
+      expect(await branchExists('main')).toBe(true);
     });
 
-    it('should return false for non-existing branch', () => {
-      expect(branchExists('this-branch-does-not-exist-xyz')).toBe(false);
+    it('should return false for non-existing branch', async () => {
+      expect(await branchExists('this-branch-does-not-exist-xyz')).toBe(false);
     });
   });
 
   describe('listWorktrees', () => {
-    it('should return array of worktrees', () => {
-      const worktrees = listWorktrees();
+    it('should return array of worktrees', async () => {
+      const worktrees = await listWorktrees();
       expect(Array.isArray(worktrees)).toBe(true);
       expect(worktrees.length).toBeGreaterThan(0);
     });
 
-    it('should mark first worktree as main', () => {
-      const worktrees = listWorktrees();
+    it('should mark first worktree as main', async () => {
+      const worktrees = await listWorktrees();
       expect(worktrees[0].isMain).toBe(true);
     });
 
-    it('should include branch and commit info', () => {
-      const worktrees = listWorktrees();
+    it('should include branch and commit info', async () => {
+      const worktrees = await listWorktrees();
       const mainWorktree = worktrees[0];
       expect(mainWorktree.branch).toBeDefined();
       expect(mainWorktree.commit).toBeDefined();
@@ -93,8 +83,8 @@ describe('git utilities', () => {
   });
 
   describe('isClean', () => {
-    it('should return boolean', () => {
-      const result = isClean();
+    it('should return boolean', async () => {
+      const result = await isClean();
       expect(typeof result).toBe('boolean');
     });
   });

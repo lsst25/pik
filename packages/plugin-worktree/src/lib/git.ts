@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from 'child_process';
+import { simpleGit, SimpleGit } from 'simple-git';
 
 export interface Worktree {
   path: string;
@@ -8,89 +8,44 @@ export interface Worktree {
   isMain: boolean;
 }
 
-export interface GitError extends Error {
-  stderr?: string;
-}
-
 /**
- * Execute a git command and return stdout
+ * Get a simple-git instance for the given directory
  */
-export function git(args: string[], cwd?: string): string {
-  try {
-    return execFileSync('git', args, {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-  } catch (error) {
-    const err = error as { stderr?: Buffer; message: string };
-    const gitError: GitError = new Error(
-      err.stderr?.toString().trim() || err.message
-    );
-    gitError.stderr = err.stderr?.toString();
-    throw gitError;
-  }
-}
-
-/**
- * Execute a git command asynchronously with live output
- */
-export function gitAsync(
-  args: string[],
-  cwd?: string
-): Promise<{ code: number; stdout: string; stderr: string }> {
-  return new Promise((resolve) => {
-    const proc = spawn('git', args, {
-      cwd,
-      stdio: ['inherit', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    proc.stdout?.on('data', (data) => {
-      stdout += data.toString();
-      process.stdout.write(data);
-    });
-
-    proc.stderr?.on('data', (data) => {
-      stderr += data.toString();
-      process.stderr.write(data);
-    });
-
-    proc.on('close', (code) => {
-      resolve({ code: code ?? 0, stdout, stderr });
-    });
-  });
+export function getGit(cwd?: string): SimpleGit {
+  return simpleGit(cwd);
 }
 
 /**
  * Get the root directory of the git repository
  */
-export function getRepoRoot(cwd?: string): string {
-  return git(['rev-parse', '--show-toplevel'], cwd);
+export async function getRepoRoot(cwd?: string): Promise<string> {
+  const git = getGit(cwd);
+  return (await git.revparse(['--show-toplevel'])).trim();
 }
 
 /**
  * Get the current branch name
  */
-export function getCurrentBranch(cwd?: string): string {
-  return git(['rev-parse', '--abbrev-ref', 'HEAD'], cwd);
+export async function getCurrentBranch(cwd?: string): Promise<string> {
+  const git = getGit(cwd);
+  return (await git.revparse(['--abbrev-ref', 'HEAD'])).trim();
 }
 
 /**
  * Check if working directory is clean
  */
-export function isClean(cwd?: string): boolean {
-  const status = git(['status', '--porcelain'], cwd);
-  return status === '';
+export async function isClean(cwd?: string): Promise<boolean> {
+  const git = getGit(cwd);
+  const status = await git.status();
+  return status.isClean();
 }
 
 /**
  * List all worktrees
  */
-export function listWorktrees(cwd?: string): Worktree[] {
-  const output = git(['worktree', 'list', '--porcelain'], cwd);
+export async function listWorktrees(cwd?: string): Promise<Worktree[]> {
+  const git = getGit(cwd);
+  const output = await git.raw(['worktree', 'list', '--porcelain']);
   if (!output) return [];
 
   const worktrees: Worktree[] = [];
@@ -129,12 +84,13 @@ export function listWorktrees(cwd?: string): Worktree[] {
 /**
  * Create a new worktree
  */
-export function createWorktree(
+export async function createWorktree(
   path: string,
   branch: string,
   options?: { newBranch?: boolean; baseBranch?: string },
   cwd?: string
-): void {
+): Promise<void> {
+  const git = getGit(cwd);
   const args = ['worktree', 'add'];
 
   if (options?.newBranch) {
@@ -147,35 +103,45 @@ export function createWorktree(
     args.push(path, branch);
   }
 
-  git(args, cwd);
+  await git.raw(args);
 }
 
 /**
  * Remove a worktree
  */
-export function removeWorktree(path: string, force?: boolean, cwd?: string): void {
+export async function removeWorktree(
+  path: string,
+  force?: boolean,
+  cwd?: string
+): Promise<void> {
+  const git = getGit(cwd);
   const args = ['worktree', 'remove'];
   if (force) {
     args.push('--force');
   }
   args.push(path);
-  git(args, cwd);
+  await git.raw(args);
 }
 
 /**
  * Get list of local branches
  */
-export function listBranches(cwd?: string): string[] {
-  const output = git(['branch', '--format=%(refname:short)'], cwd);
-  return output.split('\n').filter(Boolean);
+export async function listBranches(cwd?: string): Promise<string[]> {
+  const git = getGit(cwd);
+  const result = await git.branchLocal();
+  return result.all;
 }
 
 /**
  * Check if a branch exists
  */
-export function branchExists(branch: string, cwd?: string): boolean {
+export async function branchExists(
+  branch: string,
+  cwd?: string
+): Promise<boolean> {
+  const git = getGit(cwd);
   try {
-    git(['rev-parse', '--verify', branch], cwd);
+    await git.revparse(['--verify', branch]);
     return true;
   } catch {
     return false;
@@ -183,11 +149,28 @@ export function branchExists(branch: string, cwd?: string): boolean {
 }
 
 /**
+ * Delete a branch
+ */
+export async function deleteBranch(
+  branch: string,
+  force?: boolean,
+  cwd?: string
+): Promise<void> {
+  const git = getGit(cwd);
+  if (force) {
+    await git.branch(['-D', branch]);
+  } else {
+    await git.branch(['-d', branch]);
+  }
+}
+
+/**
  * Check if path is inside a git worktree
  */
-export function isWorktree(path: string): boolean {
+export async function isWorktree(path: string): Promise<boolean> {
+  const git = getGit(path);
   try {
-    const gitDir = git(['rev-parse', '--git-dir'], path);
+    const gitDir = await git.revparse(['--git-dir']);
     // If .git is a file (not directory), it's a worktree
     return gitDir.includes('.git/worktrees/');
   } catch {

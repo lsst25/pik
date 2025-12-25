@@ -13,8 +13,8 @@ export const listCommand = new Command('list')
   .option('--json', 'Output in JSON format')
   .action(async (options: ListOptions) => {
     try {
-      const repoRoot = getRepoRoot();
-      const worktrees = listWorktrees(repoRoot);
+      const repoRoot = await getRepoRoot();
+      const worktrees = await listWorktrees(repoRoot);
 
       if (options.json) {
         console.log(JSON.stringify(worktrees, null, 2));

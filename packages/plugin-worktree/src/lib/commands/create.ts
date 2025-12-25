@@ -29,13 +29,13 @@ export const createCommand = new Command('create')
   .option('-n, --new', 'Create a new branch')
   .action(async (name: string | undefined, options: CreateOptions) => {
     try {
-      const repoRoot = getRepoRoot();
+      const repoRoot = await getRepoRoot();
       const config = await loadConfig(repoRoot);
       const worktreeConfig = config?.worktree ?? {};
 
-      const currentBranch = getCurrentBranch(repoRoot);
-      const branches = listBranches(repoRoot);
-      const existingWorktrees = listWorktrees(repoRoot);
+      const currentBranch = await getCurrentBranch(repoRoot);
+      const branches = await listBranches(repoRoot);
+      const existingWorktrees = await listWorktrees(repoRoot);
       const existingPaths = new Set(existingWorktrees.map((w) => w.path));
 
       // Determine branch
@@ -55,9 +55,9 @@ export const createCommand = new Command('create')
           isNewBranch = true;
           branch = await input({
             message: 'New branch name:',
-            validate: (value) => {
+            validate: async (value) => {
               if (!value.trim()) return 'Branch name is required';
-              if (branchExists(value, repoRoot)) return 'Branch already exists';
+              if (await branchExists(value, repoRoot)) return 'Branch already exists';
               return true;
             },
           });
@@ -111,7 +111,7 @@ export const createCommand = new Command('create')
 
       // Create worktree
       console.log(pc.dim(`Creating worktree at ${worktreePath}...`));
-      createWorktree(
+      await createWorktree(
         worktreePath,
         branch,
         { newBranch: isNewBranch, baseBranch: currentBranch },

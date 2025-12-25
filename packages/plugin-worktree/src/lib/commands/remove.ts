@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { select, confirm } from '@inquirer/prompts';
 import pc from 'picocolors';
 import { relative } from 'path';
-import { listWorktrees, removeWorktree, getRepoRoot, git } from '../git.js';
+import { listWorktrees, removeWorktree, getRepoRoot, deleteBranch } from '../git.js';
 
 interface RemoveOptions {
   force?: boolean;
@@ -17,8 +17,8 @@ export const removeCommand = new Command('remove')
   .option('-D, --delete-branch', 'Also delete the branch')
   .action(async (pathArg: string | undefined, options: RemoveOptions) => {
     try {
-      const repoRoot = getRepoRoot();
-      const worktrees = listWorktrees(repoRoot);
+      const repoRoot = await getRepoRoot();
+      const worktrees = await listWorktrees(repoRoot);
 
       // Filter out main worktree
       const removableWorktrees = worktrees.filter((w) => !w.isMain);
@@ -74,7 +74,7 @@ export const removeCommand = new Command('remove')
 
       // Remove worktree
       console.log(pc.dim('Removing worktree...'));
-      removeWorktree(targetWorktree.path, options.force, repoRoot);
+      await removeWorktree(targetWorktree.path, options.force, repoRoot);
       console.log(pc.green(`✓ Removed worktree ${relativePath}`));
 
       // Optionally delete branch
@@ -86,7 +86,7 @@ export const removeCommand = new Command('remove')
 
         if (shouldDeleteBranch) {
           try {
-            git(['branch', '-D', targetWorktree.branch], repoRoot);
+            await deleteBranch(targetWorktree.branch, true, repoRoot);
             console.log(pc.green(`✓ Deleted branch ${targetWorktree.branch}`));
           } catch (error) {
             if (error instanceof Error) {
