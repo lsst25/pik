@@ -1,48 +1,12 @@
 import { execSync } from 'child_process';
 import type { Command } from 'commander';
-import { confirm, select } from '@inquirer/prompts';
+import { confirm, input } from '@inquirer/prompts';
 import pc from 'picocolors';
 import type { PikPlugin } from '@lsst/pik-core';
 
 interface ProcessInfo {
   pid: number;
   command: string;
-}
-
-interface PortInfo {
-  port: number;
-  pid: number;
-  command: string;
-}
-
-function getListeningPorts(): PortInfo[] {
-  try {
-    const output = execSync('lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null', { encoding: 'utf-8' });
-    const lines = output.trim().split('\n').slice(1); // Skip header
-
-    const ports: PortInfo[] = [];
-    const seen = new Set<number>();
-
-    for (const line of lines) {
-      const parts = line.split(/\s+/);
-      const command = parts[0];
-      const pid = parseInt(parts[1], 10);
-      const nameCol = parts[8] || '';
-      const portMatch = nameCol.match(/:(\d+)$/);
-
-      if (portMatch) {
-        const port = parseInt(portMatch[1], 10);
-        if (!seen.has(port)) {
-          seen.add(port);
-          ports.push({ port, pid, command });
-        }
-      }
-    }
-
-    return ports.sort((a, b) => a.port - b.port);
-  } catch {
-    return [];
-  }
 }
 
 function getProcessesOnPort(port: number): ProcessInfo[] {
@@ -135,24 +99,21 @@ export const killportPlugin: PikPlugin = {
 
           await killPortInteractive(port, options.yes ?? false);
         } else {
-          // Interactive mode - show list of listening ports
-          const ports = getListeningPorts();
-
-          if (ports.length === 0) {
-            console.log(pc.yellow('No listening ports found'));
-            return;
-          }
-
+          // Interactive mode - prompt for port number
           try {
-            const selected = await select({
-              message: 'Select port to kill',
-              choices: ports.map((p) => ({
-                name: `${pc.cyan(`:${p.port}`)} - ${p.command} ${pc.dim(`(pid ${p.pid})`)}`,
-                value: p.port,
-              })),
+            const portInput = await input({
+              message: 'Port number:',
+              validate: (value) => {
+                const num = parseInt(value, 10);
+                if (isNaN(num) || num < 1 || num > 65535) {
+                  return 'Please enter a valid port number (1-65535)';
+                }
+                return true;
+              },
             });
 
-            await killPortInteractive(selected, options.yes ?? false);
+            const port = parseInt(portInput, 10);
+            await killPortInteractive(port, options.yes ?? false);
           } catch (error) {
             if (error instanceof Error && error.name === 'ExitPromptError') {
               return;
