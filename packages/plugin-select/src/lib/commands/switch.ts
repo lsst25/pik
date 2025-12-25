@@ -3,9 +3,9 @@ import { writeFile } from 'fs/promises';
 import { extname, relative } from 'path';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { SingleSwitcher, type Selector } from '@lsst/pik-core';
-import { loadConfig } from '../config.js';
+import { SingleSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
 import { Scanner, type FileResult } from '../scanner.js';
+import '../types.js'; // Import for type augmentation
 
 interface SelectorChoice {
   file: FileResult;
@@ -25,12 +25,12 @@ export const switchCommand = new Command('switch')
   .action(async () => {
     const config = await loadConfig();
 
-    if (!config) {
-      console.error(pc.red('No pik.config.ts found'));
+    if (!config?.select) {
+      console.error(pc.red('No pik config found or missing "select" section'));
       process.exit(1);
     }
 
-    const scanner = new Scanner(config);
+    const scanner = new Scanner(config.select);
     const results = await scanner.scan();
 
     if (results.length === 0) {

@@ -33,5 +33,7 @@
     "dist",
     "!**/*.tsbuildinfo"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
 }

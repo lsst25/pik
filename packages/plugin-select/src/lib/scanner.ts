@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import { glob } from 'glob';
 import { extname } from 'path';
 import { Parser, type Selector } from '@lsst/pik-core';
-import type { PikConfig } from './config.js';
+import type { SelectConfig } from './types.js';
 
 export interface FileResult {
   path: string;
@@ -11,7 +11,7 @@ export interface FileResult {
 }
 
 export class Scanner {
-  constructor(private readonly config: PikConfig) {}
+  constructor(private readonly config: SelectConfig) {}
 
   async scan(cwd: string = process.cwd()): Promise<FileResult[]> {
     const files = await glob(this.config.include, {

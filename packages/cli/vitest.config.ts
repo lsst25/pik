@@ -8,5 +8,6 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.{test,spec}.ts'],
     reporters: ['default'],
+    passWithNoTests: true,
   },
 });

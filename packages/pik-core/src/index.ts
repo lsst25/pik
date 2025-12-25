@@ -1,6 +1,9 @@
 // Types
-export type { Option, Selector, ParseResult } from './lib/types/index.js';
+export type { Option, Selector, ParseResult, PikPlugin } from './lib/types/index.js';
 export { CommentStyle } from './lib/types/index.js';
+
+// Config
+export { defineConfig, loadConfig, type PikConfig } from './lib/config.js';
 
 // Parser
 export { Parser } from './lib/parser.js';

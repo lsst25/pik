@@ -1,8 +1,9 @@
 import { Command } from 'commander';
 import pc from 'picocolors';
 import { relative } from 'path';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
+import '../types.js'; // Import for type augmentation
 
 interface ListOptions {
   json?: boolean;
@@ -15,16 +16,16 @@ export const listCommand = new Command('list')
   .action(async (options: ListOptions) => {
     const config = await loadConfig();
 
-    if (!config) {
+    if (!config?.select) {
       if (options.json) {
-        console.log(JSON.stringify({ error: 'No pik.config.ts found' }));
+        console.log(JSON.stringify({ error: 'No pik config found or missing "select" section' }));
       } else {
-        console.error(pc.red('No pik.config.ts found'));
+        console.error(pc.red('No pik config found or missing "select" section'));
       }
       process.exit(1);
     }
 
-    const scanner = new Scanner(config);
+    const scanner = new Scanner(config.select);
     const results = await scanner.scan();
 
     if (options.json) {

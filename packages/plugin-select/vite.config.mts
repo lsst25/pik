@@ -5,7 +5,7 @@ import * as path from 'path';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../node_modules/.vite/packages/pik-core',
+  cacheDir: '../../node_modules/.vite/packages/plugin-select',
   plugins: [
     dts({
       entryRoot: 'src',
@@ -30,7 +30,7 @@ export default defineConfig(() => ({
     lib: {
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
-      name: '@lsst/pik-core',
+      name: '@lsst/pik-plugin-select',
       fileName: 'index',
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
@@ -38,16 +38,27 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['url', 'fs', 'path', 'fs/promises'],
+      external: [
+        'fs',
+        'fs/promises',
+        'path',
+        'url',
+        '@lsst/pik-core',
+        '@inquirer/prompts',
+        'commander',
+        'glob',
+        'picocolors',
+      ],
     },
   },
   test: {
-    name: '@lsst/pik-core',
+    name: '@lsst/pik-plugin-select',
     watch: false,
     globals: true,
     environment: 'node',
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
+    passWithNoTests: true,
     coverage: {
       reportsDirectory: './test-output/vitest/coverage',
       provider: 'v8' as const,

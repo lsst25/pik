@@ -1,19 +1,55 @@
 import { Command } from 'commander';
+import { select, Separator } from '@inquirer/prompts';
+import pc from 'picocolors';
+import type { PikPlugin } from '@lsst/pik-core';
+import { selectPlugin } from '@lsst/pik-plugin-select';
 import pkg from '../../package.json' with { type: 'json' };
-import { listCommand } from './commands/list.js';
-import { setCommand } from './commands/set.js';
-import { switchCommand } from './commands/switch.js';
+
+// List of available plugins
+const plugins: PikPlugin[] = [selectPlugin];
 
 export const program = new Command()
   .name(pkg.name)
   .description(pkg.description)
   .version(pkg.version);
 
-program.addCommand(listCommand);
-program.addCommand(setCommand);
-program.addCommand(switchCommand);
+// Register all plugins
+for (const plugin of plugins) {
+  plugin.register(program);
+}
 
-// Default command: interactive switch
+// Default action: show main menu if multiple plugins, otherwise run default plugin
 program.action(async () => {
-  await switchCommand.parseAsync([]);
+  if (plugins.length === 1) {
+    // Single plugin - run its default command
+    const plugin = plugins[0];
+    const cmd = program.commands.find((c) => c.name() === plugin.command);
+    if (cmd) {
+      await cmd.parseAsync([], { from: 'user' });
+    }
+  } else {
+    // Multiple plugins - show selection menu
+    const EXIT_VALUE = Symbol('exit');
+
+    const selectedPlugin = await select({
+      message: 'Select a tool',
+      choices: [
+        ...plugins.map((plugin) => ({
+          name: `${pc.bold(plugin.name)} - ${plugin.description}`,
+          value: plugin,
+        })),
+        new Separator(),
+        { name: pc.dim('Exit'), value: EXIT_VALUE as typeof EXIT_VALUE | PikPlugin },
+      ],
+    });
+
+    if (selectedPlugin === EXIT_VALUE) {
+      return;
+    }
+
+    const cmd = program.commands.find((c) => c.name() === selectedPlugin.command);
+    if (cmd) {
+      await cmd.parseAsync([], { from: 'user' });
+    }
+  }
 });

@@ -2,12 +2,17 @@ import { pathToFileURL } from 'url';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 
+/**
+ * Base config interface - plugins extend this via declaration merging
+ */
 export interface PikConfig {
-  /** File patterns to scan for @pik markers */
-  include: string[];
+  [pluginName: string]: unknown;
 }
 
-export function defineConfig(config: PikConfig): PikConfig {
+/**
+ * Helper function for type-safe config definition
+ */
+export function defineConfig<T extends PikConfig>(config: T): T {
   return config;
 }
 
@@ -22,6 +27,9 @@ const CONFIG_FILES = [
   '.pik.config.js',
 ];
 
+/**
+ * Load pik config from the current directory
+ */
 export async function loadConfig(cwd: string = process.cwd()): Promise<PikConfig | null> {
   for (const configFile of CONFIG_FILES) {
     const configPath = resolve(cwd, configFile);

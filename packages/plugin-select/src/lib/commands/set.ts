@@ -2,9 +2,9 @@ import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { extname, relative } from 'path';
 import pc from 'picocolors';
-import { SingleSwitcher } from '@lsst/pik-core';
-import { loadConfig } from '../config.js';
+import { SingleSwitcher, loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
+import '../types.js'; // Import for type augmentation
 
 export const setCommand = new Command('set')
   .description('Set a specific option for a selector')
@@ -13,12 +13,12 @@ export const setCommand = new Command('set')
   .action(async (selectorName: string, optionName: string) => {
     const config = await loadConfig();
 
-    if (!config) {
-      console.error(pc.red('No pik.config.ts found'));
+    if (!config?.select) {
+      console.error(pc.red('No pik config found or missing "select" section'));
       process.exit(1);
     }
 
-    const scanner = new Scanner(config);
+    const scanner = new Scanner(config.select);
     const results = await scanner.scan();
 
     let found = false;
