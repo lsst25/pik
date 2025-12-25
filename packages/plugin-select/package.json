@@ -1,6 +1,6 @@
 {
   "name": "@lsst/pik-plugin-select",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Config selector plugin for pik CLI",
   "type": "module",
   "license": "MIT",

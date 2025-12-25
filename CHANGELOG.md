@@ -1,3 +1,14 @@
+## 0.6.3 (2025-12-25)
+
+### 🚀 Features
+
+- **cli:** add defaultPort config option to killport plugin ([f40c53b](https://github.com/lsst25/pik/commit/f40c53b))
+- **cli:** add --config flag to killport for nvim integration ([27c6d7d](https://github.com/lsst25/pik/commit/27c6d7d))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.2 (2025-12-25)
 
 ### 🚀 Features
