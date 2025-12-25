@@ -1,6 +1,6 @@
 {
   "name": "@lsst/pik-plugin-worktree",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Git worktree management plugin for pik CLI",
   "type": "module",
   "license": "MIT",

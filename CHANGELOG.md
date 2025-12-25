@@ -1,3 +1,13 @@
+## 0.6.2 (2025-12-25)
+
+### 🚀 Features
+
+- **cli:** add interactive mode to killport plugin ([767a56c](https://github.com/lsst25/pik/commit/767a56c))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.1 (2025-12-25)
 
 ### 🚀 Features
