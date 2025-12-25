@@ -134,5 +134,57 @@ export MODE=development  # @pik:option development
       expect(lines[2]).toContain('<!-- <script src="prod.js"></script>');
       expect(lines[2]).toContain('-->');
     });
+
+    it('should switch standalone HTML block comment markers', () => {
+      const content = `
+<!-- @pik:select Viewer -->
+<!-- @pik:option DevelopV2 -->
+<script src="https://assets.develop.expivi.net/viewer/v2/viewer.js"></script>
+<!-- @pik:option Local -->
+<!-- <script src="http://localhost:3000/viewer.js"></script> -->
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const switcher = SingleSwitcher.forExtension('html');
+
+      const result = parser.parse(content);
+      const newContent = switcher.switch(content, result.selectors[0], 'Local');
+
+      const lines = newContent.split('\n');
+      // Marker lines should be unchanged
+      expect(lines[1]).toBe('<!-- @pik:option DevelopV2 -->');
+      expect(lines[3]).toBe('<!-- @pik:option Local -->');
+      // Content lines should be switched
+      expect(lines[2]).toContain('<!-- <script src="https://assets.develop.expivi.net');
+      expect(lines[4]).toBe('<script src="http://localhost:3000/viewer.js"></script>');
+    });
+
+    it('should switch standalone line comment markers', () => {
+      const content = `
+# @pik:select Mode
+# @pik:option Production
+export MODE=production
+# @pik:option Development
+# export MODE=development
+`.trim();
+
+      const parser = Parser.forExtension('sh');
+      const switcher = SingleSwitcher.forExtension('sh');
+
+      const result = parser.parse(content);
+      const newContent = switcher.switch(
+        content,
+        result.selectors[0],
+        'Development'
+      );
+
+      const lines = newContent.split('\n');
+      // Marker lines should be unchanged
+      expect(lines[1]).toBe('# @pik:option Production');
+      expect(lines[3]).toBe('# @pik:option Development');
+      // Content lines should be switched
+      expect(lines[2]).toBe('# export MODE=production');
+      expect(lines[4]).toBe('export MODE=development');
+    });
   });
 });

@@ -44,17 +44,68 @@ export class Parser {
       // Check for option
       const optionMatch = line.match(Parser.OPTION_REGEX);
       if (optionMatch && currentSelector) {
-        const option: Option = {
-          name: optionMatch[1],
-          line: lineNumber,
-          content: line,
-          isActive: !this.isLineCommented(line),
-        };
-        currentSelector.options.push(option);
+        // Check if this is a standalone marker (marker only on its own line)
+        const isStandalone = this.isStandaloneMarker(line);
+
+        if (isStandalone && i + 1 < lines.length) {
+          // Standalone marker: content is on the next line
+          const contentLine = lines[i + 1];
+          const option: Option = {
+            name: optionMatch[1],
+            line: lineNumber,
+            contentLine: lineNumber + 1,
+            content: contentLine,
+            isActive: !this.isLineCommented(contentLine),
+          };
+          currentSelector.options.push(option);
+        } else {
+          // Inline marker: content is on the same line
+          const option: Option = {
+            name: optionMatch[1],
+            line: lineNumber,
+            contentLine: lineNumber,
+            content: line,
+            isActive: !this.isLineCommented(line),
+          };
+          currentSelector.options.push(option);
+        }
       }
     }
 
     return { selectors, content };
+  }
+
+  /**
+   * Check if a line contains only a standalone marker (no other content)
+   * e.g., "<!-- @pik:option Name -->" or "# @pik:option Name"
+   */
+  private isStandaloneMarker(line: string): boolean {
+    const trimmed = line.trim();
+
+    // Check block comment style: <!-- @pik:option Name -->
+    if (this.commentStyle.hasBlockComments) {
+      const { blockOpen, blockClose } = this.commentStyle;
+      if (trimmed.startsWith(blockOpen!) && trimmed.endsWith(blockClose!)) {
+        // Extract content between markers
+        const inner = trimmed.slice(blockOpen!.length, -blockClose!.length).trim();
+        // Check if inner content is ONLY the option marker
+        const optionMatch = inner.match(Parser.OPTION_REGEX);
+        if (optionMatch && inner === `@pik:option ${optionMatch[1]}`) {
+          return true;
+        }
+      }
+    }
+
+    // Check line comment style: // @pik:option Name or # @pik:option Name
+    if (trimmed.startsWith(this.commentStyle.lineComment)) {
+      const afterComment = trimmed.slice(this.commentStyle.lineComment.length).trim();
+      const optionMatch = afterComment.match(Parser.OPTION_REGEX);
+      if (optionMatch && afterComment === `@pik:option ${optionMatch[1]}`) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

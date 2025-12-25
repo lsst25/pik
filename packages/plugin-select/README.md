@@ -45,6 +45,28 @@ pik select set <name> <option>  # Set directly
 - `@pik:select <name>` - Defines a selector group
 - `@pik:option <name>` - Marks an option within a selector
 
+### Inline Style
+
+Marker on the same line as content:
+
+```typescript
+// @pik:select Environment
+const API_URL = "https://dev.example.com"; // @pik:option DEV
+// const API_URL = "https://example.com"; // @pik:option PROD
+```
+
+### Standalone Style
+
+Marker on its own line, content on the next line (useful for HTML):
+
+```html
+<!-- @pik:select Viewer -->
+<!-- @pik:option Develop -->
+<script src="https://dev.example.com/viewer.js"></script>
+<!-- @pik:option Local -->
+<!-- <script src="http://localhost:3000/viewer.js"></script> -->
+```
+
 ## Supported File Types
 
 | Extensions | Comment Style |

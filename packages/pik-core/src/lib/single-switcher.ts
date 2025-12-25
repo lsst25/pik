@@ -21,14 +21,15 @@ export class SingleSwitcher extends Switcher {
 
     const lines = content.split('\n');
 
-    // Detect if any option uses block comment style
+    // Detect if any option uses block comment style (check the content line, not marker line)
     const useBlockStyle = selector.options.some((opt) => {
-      const line = lines[opt.line - 1];
+      const line = lines[opt.contentLine - 1];
       return this.isBlockCommented(line);
     });
 
     for (const option of selector.options) {
-      const lineIndex = option.line - 1;
+      // Use contentLine for the actual content to modify
+      const lineIndex = option.contentLine - 1;
       const line = lines[lineIndex];
 
       if (option.name === optionName) {

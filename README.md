@@ -46,11 +46,23 @@ Switch config options in source files using comment markers.
 
 1. Add markers to your code:
 
+**Inline style** - marker on the same line:
+
 ```typescript
 // @pik:select Environment
 const API_URL = "https://dev.example.com"; // @pik:option Development
 // const API_URL = "https://staging.example.com"; // @pik:option Staging
 // const API_URL = "https://example.com"; // @pik:option Production
+```
+
+**Standalone style** - marker on its own line, content on the next line:
+
+```html
+<!-- @pik:select Viewer -->
+<!-- @pik:option Develop -->
+<script src="https://dev.example.com/viewer.js"></script>
+<!-- @pik:option Local -->
+<!-- <script src="http://localhost:3000/viewer.js"></script> -->
 ```
 
 2. Run:

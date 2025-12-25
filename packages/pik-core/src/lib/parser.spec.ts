@@ -140,5 +140,78 @@ export MODE=production     # @pik:option production
 
       expect(result.content).toBe(content);
     });
+
+    it('should handle standalone HTML block comment markers', () => {
+      const content = `
+<!-- @pik:select Viewer -->
+<!-- @pik:option DevelopV2 -->
+<script src="https://assets.develop.expivi.net/viewer/v2/viewer.js"></script>
+<!-- @pik:option Local -->
+<!-- <script src="http://localhost:3000/viewer.js"></script> -->
+`.trim();
+
+      const parser = Parser.forExtension('html');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].name).toBe('Viewer');
+      expect(result.selectors[0].options).toHaveLength(2);
+
+      const [developV2, local] = result.selectors[0].options;
+
+      // DevelopV2: marker on line 2, content on line 3
+      expect(developV2.name).toBe('DevelopV2');
+      expect(developV2.line).toBe(2);
+      expect(developV2.contentLine).toBe(3);
+      expect(developV2.isActive).toBe(true);
+      expect(developV2.content).toContain('assets.develop.expivi.net');
+
+      // Local: marker on line 4, content on line 5
+      expect(local.name).toBe('Local');
+      expect(local.line).toBe(4);
+      expect(local.contentLine).toBe(5);
+      expect(local.isActive).toBe(false);
+      expect(local.content).toContain('localhost:3000');
+    });
+
+    it('should handle standalone line comment markers', () => {
+      const content = `
+# @pik:select Mode
+# @pik:option Production
+export MODE=production
+# @pik:option Development
+# export MODE=development
+`.trim();
+
+      const parser = Parser.forExtension('sh');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      const [prod, dev] = result.selectors[0].options;
+
+      expect(prod.name).toBe('Production');
+      expect(prod.line).toBe(2);
+      expect(prod.contentLine).toBe(3);
+      expect(prod.isActive).toBe(true);
+
+      expect(dev.name).toBe('Development');
+      expect(dev.line).toBe(4);
+      expect(dev.contentLine).toBe(5);
+      expect(dev.isActive).toBe(false);
+    });
+
+    it('should set contentLine same as line for inline markers', () => {
+      const content = `
+// @pik:select Env
+const env = 'dev'; // @pik:option Dev
+`.trim();
+
+      const parser = Parser.forExtension('ts');
+      const result = parser.parse(content);
+
+      const option = result.selectors[0].options[0];
+      expect(option.line).toBe(2);
+      expect(option.contentLine).toBe(2);
+    });
   });
 });
