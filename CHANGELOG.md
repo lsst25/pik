@@ -1,3 +1,13 @@
+## 0.5.1 (2025-12-25)
+
+### 🩹 Fixes
+
+- **plugin-worktree:** use execFileSync to avoid shell escaping issues ([e2c7213](https://github.com/lsst25/pik/commit/e2c7213))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.5.0 (2025-12-25)
 
 ### 🚀 Features
