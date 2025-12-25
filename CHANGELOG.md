@@ -1,3 +1,13 @@
+## 0.6.1 (2025-12-25)
+
+### 🚀 Features
+
+- **cli:** add killport plugin ([ece39b3](https://github.com/lsst25/pik/commit/ece39b3))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.0 (2025-12-25)
 
 ### 🚀 Features
