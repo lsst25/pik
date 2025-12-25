@@ -1,4 +1,4 @@
-import { execSync, spawn } from 'child_process';
+import { execFileSync, spawn } from 'child_process';
 
 export interface Worktree {
   path: string;
@@ -17,7 +17,7 @@ export interface GitError extends Error {
  */
 export function git(args: string[], cwd?: string): string {
   try {
-    return execSync(`git ${args.join(' ')}`, {
+    return execFileSync('git', args, {
       cwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
