@@ -1,11 +1,27 @@
 import { pathToFileURL } from 'url';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
+import type { PikPlugin } from './types/plugin.js';
 
 /**
  * Base config interface - plugins extend this via declaration merging
  */
 export interface PikConfig {
+  /**
+   * External plugins to load.
+   * Each plugin should be a factory function call that returns a PikPlugin:
+   * @example
+   * ```ts
+   * import { myPlugin } from 'pik-plugin-my';
+   *
+   * export default {
+   *   plugins: [
+   *     myPlugin({ someOption: 'value' }),
+   *   ],
+   * }
+   * ```
+   */
+  plugins?: PikPlugin[];
   [pluginName: string]: unknown;
 }
 
@@ -42,4 +58,22 @@ export async function loadConfig(cwd: string = process.cwd()): Promise<PikConfig
   }
 
   return null;
+}
+
+/**
+ * Validate that an object satisfies the PikPlugin interface
+ */
+export function isValidPlugin(obj: unknown): obj is PikPlugin {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+
+  const plugin = obj as Record<string, unknown>;
+
+  return (
+    typeof plugin.name === 'string' &&
+    typeof plugin.description === 'string' &&
+    typeof plugin.command === 'string' &&
+    typeof plugin.register === 'function'
+  );
 }

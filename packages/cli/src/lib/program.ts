@@ -1,27 +1,49 @@
 import { Command } from 'commander';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { loadConfig, type PikPlugin } from '@lsst/pik-core';
+import { loadConfig, isValidPlugin, type PikPlugin } from '@lsst/pik-core';
 import { selectPlugin } from '@lsst/pik-plugin-select';
 import { worktreePlugin } from '@lsst/pik-plugin-worktree';
 import pkg from '../../package.json' with { type: 'json' };
 
-// List of all available plugins
-const allPlugins: PikPlugin[] = [selectPlugin, worktreePlugin];
+// Built-in plugins
+const builtinPlugins: PikPlugin[] = [selectPlugin, worktreePlugin];
 
 /**
  * Get plugins that are enabled in the config.
- * A plugin is enabled if its command key exists in the config (even as empty object).
+ * - Built-in plugins are enabled if their command key exists in config
+ * - External plugins from the `plugins` array are added directly
  */
 async function getEnabledPlugins(): Promise<PikPlugin[]> {
   const config = await loadConfig();
 
   if (!config) {
-    // No config - no plugins enabled for interactive mode
+    // No config - no plugins enabled
     return [];
   }
 
-  return allPlugins.filter((plugin) => plugin.command in config);
+  const enabledPlugins: PikPlugin[] = [];
+
+  // Add built-in plugins that have config keys
+  for (const plugin of builtinPlugins) {
+    if (plugin.command in config) {
+      enabledPlugins.push(plugin);
+    }
+  }
+
+  // Add external plugins from config
+  if (config.plugins && Array.isArray(config.plugins)) {
+    for (const plugin of config.plugins) {
+      if (isValidPlugin(plugin)) {
+        enabledPlugins.push(plugin);
+      } else {
+        console.error(pc.red('Invalid plugin in config.plugins array'));
+        console.error(pc.dim('Each plugin must have: name, description, command, register'));
+      }
+    }
+  }
+
+  return enabledPlugins;
 }
 
 export const program = new Command()
