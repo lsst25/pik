@@ -145,10 +145,12 @@ export function myPlugin(config: MyPluginConfig): PikPlugin {
 
 ## Packages
 
-- [`@lsst/pik`](https://www.npmjs.com/package/@lsst/pik) - CLI tool
-- [`@lsst/pik-core`](https://www.npmjs.com/package/@lsst/pik-core) - Core library
-- [`@lsst/pik-plugin-select`](https://www.npmjs.com/package/@lsst/pik-plugin-select) - Select plugin
-- [`@lsst/pik-plugin-worktree`](https://www.npmjs.com/package/@lsst/pik-plugin-worktree) - Worktree plugin
+| Package | Description |
+|---------|-------------|
+| [`@lsst/pik`](https://www.npmjs.com/package/@lsst/pik) | CLI tool (install this globally) |
+| [`@lsst/pik-core`](https://www.npmjs.com/package/@lsst/pik-core) | Core library for parsing, switching, and plugin API |
+| [`@lsst/pik-plugin-select`](https://www.npmjs.com/package/@lsst/pik-plugin-select) | Select plugin - switch config options in source files |
+| [`@lsst/pik-plugin-worktree`](https://www.npmjs.com/package/@lsst/pik-plugin-worktree) | Worktree plugin - manage git worktrees |
 
 ## License
 
