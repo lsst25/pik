@@ -1,3 +1,13 @@
+## 0.6.0 (2025-12-25)
+
+### 🚀 Features
+
+- **select:** add standalone marker support for HTML and other file types ([f21d2c6](https://github.com/lsst25/pik/commit/f21d2c6))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.5.3 (2025-12-25)
 
 ### 🚀 Features
