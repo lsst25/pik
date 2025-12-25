@@ -1,4 +1,5 @@
 #!/usr/bin/env node
-import { program } from '../lib/program.js';
+import { program, initializeProgram } from '../lib/program.js';
 
+await initializeProgram();
 program.parse();
