@@ -1,3 +1,14 @@
+## 0.5.3 (2025-12-25)
+
+### 🚀 Features
+
+- **core:** add support for external plugins ([9f1e452](https://github.com/lsst25/pik/commit/9f1e452))
+- **core:** add HTML block comment support ([64b2ba5](https://github.com/lsst25/pik/commit/64b2ba5))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.5.2 (2025-12-25)
 
 ### 🚀 Features
