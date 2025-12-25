@@ -1,3 +1,13 @@
+## 0.5.0 (2025-12-25)
+
+### 🚀 Features
+
+- **plugin-worktree:** add git worktree management plugin ([71aa0a2](https://github.com/lsst25/pik/commit/71aa0a2))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.4.2 (2025-12-25)
 
 This was a version bump only, there were no code changes.
