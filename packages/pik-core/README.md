@@ -1,6 +1,6 @@
 # @lsst/pik-core
 
-Core library for parsing and switching `@pik` config markers in source files.
+Core library for pik - provides parsing, switching, config loading, and plugin types.
 
 ## Installation
 
@@ -8,10 +8,12 @@ Core library for parsing and switching `@pik` config markers in source files.
 npm install @lsst/pik-core
 ```
 
-## Usage
+## Parsing and Switching
+
+Parse and switch `@pik` config markers in source files:
 
 ```typescript
-import { Parser, SingleSwitcher } from '@lsst25/pik-core';
+import { Parser, SingleSwitcher } from '@lsst/pik-core';
 
 const content = `
 // @pik:select Environment
@@ -26,6 +28,55 @@ const { selectors } = parser.parse(content);
 // Switch option
 const switcher = SingleSwitcher.forExtension('ts');
 const newContent = switcher.switch(content, selectors[0], 'DEV');
+```
+
+## Config Loading
+
+Load pik configuration from project files:
+
+```typescript
+import { loadConfig, defineConfig } from '@lsst/pik-core';
+
+// Load config (looks for pik.config.ts, .pik.config.ts, etc.)
+const config = await loadConfig();
+
+// Type-safe config definition
+export default defineConfig({
+  select: { include: ['src/**/*.ts'] },
+  worktree: { baseDir: '../' },
+});
+```
+
+## Creating Plugins
+
+Create custom plugins using the `PikPlugin` interface:
+
+```typescript
+import type { Command } from 'commander';
+import type { PikPlugin } from '@lsst/pik-core';
+
+interface MyPluginConfig {
+  apiKey: string;
+}
+
+export function myPlugin(config: MyPluginConfig): PikPlugin {
+  return {
+    name: 'My Plugin',
+    description: 'Does something cool',
+    command: 'my',
+    aliases: ['m'],
+
+    register(program: Command) {
+      program
+        .command('my')
+        .alias('m')
+        .description('My custom command')
+        .action(() => {
+          console.log(`Using: ${config.apiKey}`);
+        });
+    },
+  };
+}
 ```
 
 ## API
@@ -55,13 +106,24 @@ const newContent = switcher.switch(content, selector, 'optionName');
 ### CommentStyle
 
 ```typescript
-import { CommentStyle } from '@lsst25/pik-core';
+import { CommentStyle } from '@lsst/pik-core';
 
 // Get comment style for extension
 const style = CommentStyle.fromExtension('py'); // { lineComment: '#' }
 
 // Register custom style
 CommentStyle.register('custom', new CommentStyle(';;'));
+```
+
+### isValidPlugin
+
+```typescript
+import { isValidPlugin } from '@lsst/pik-core';
+
+// Validate a plugin object
+if (isValidPlugin(obj)) {
+  // obj is PikPlugin
+}
 ```
 
 ## Types
@@ -78,6 +140,19 @@ interface Option {
   line: number;
   content: string;
   isActive: boolean;
+}
+
+interface PikPlugin {
+  name: string;
+  description: string;
+  command: string;
+  aliases?: string[];
+  register: (program: Command) => void;
+}
+
+interface PikConfig {
+  plugins?: PikPlugin[];
+  [pluginName: string]: unknown;
 }
 ```
 

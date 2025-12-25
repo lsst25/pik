@@ -8,7 +8,29 @@ A developer toolkit with extensible plugins for common development tasks.
 npm install -g @lsst/pik
 ```
 
-## Plugins
+## Configuration
+
+Create `pik.config.ts` in your project root:
+
+```typescript
+export default {
+  // Enable select plugin
+  select: {
+    include: ['src/**/*.ts', '.env'],
+  },
+
+  // Enable worktree plugin
+  worktree: {
+    baseDir: '../',
+    copyFiles: ['.env.local'],
+    postCreate: 'npm install',
+  },
+};
+```
+
+Plugins are only available when their configuration key is present.
+
+## Built-in Plugins
 
 ### Select Plugin
 
@@ -22,40 +44,58 @@ Switch config options in source files using `@pik` markers.
 const env = 'LOCAL';      // @pik:option LOCAL
 ```
 
-#### 2. Create a config file
-
-Create `pik.config.ts` in your project root:
-
-```typescript
-import { defineConfig } from '@lsst/pik';
-
-export default defineConfig({
-  select: {
-    include: ['src/**/*.ts', '.env'],
-  },
-});
-```
-
-#### 3. Run commands
+#### 2. Run commands
 
 ```bash
-# Interactive mode
-pik select
+pik select              # Interactive mode
+pik select list         # List all selectors
+pik select set Environment DEV  # Set directly
+```
 
-# List all selectors
-pik select list
+### Worktree Plugin
 
-# Set a specific option
-pik select set Environment DEV
+Manage git worktrees with automatic setup.
+
+```bash
+pik worktree              # Interactive mode
+pik worktree create       # Create a new worktree
+pik worktree list         # List all worktrees
+pik worktree remove       # Remove a worktree
+```
+
+## External Plugins
+
+Add third-party or custom plugins:
+
+```typescript
+import { myPlugin } from 'pik-plugin-my';
+
+export default {
+  plugins: [
+    myPlugin({ apiKey: 'xxx' }),
+  ],
+  select: { include: ['src/**/*.ts'] },
+};
 ```
 
 ## Commands
+
+### Select
 
 | Command | Alias | Description |
 |---------|-------|-------------|
 | `pik select` | `sel` | Interactive selection mode |
 | `pik select list` | `ls` | Show all selectors and their state |
 | `pik select set <selector> <option>` | - | Set an option directly |
+
+### Worktree
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `pik worktree` | `wt` | Interactive worktree menu |
+| `pik worktree create [name]` | `add` | Create a new worktree |
+| `pik worktree list` | `ls` | List all worktrees |
+| `pik worktree remove [path]` | `rm` | Remove a worktree |
 
 ## Marker Syntax
 
@@ -68,7 +108,7 @@ Commented lines are inactive, uncommented lines are active.
 
 | Extensions | Comment Style |
 |------------|---------------|
-| `.ts`, `.js`, `.tsx`, `.jsx` | `//` |
+| `.ts`, `.js`, `.tsx`, `.jsx`, `.mts`, `.mjs`, `.html`, `.htm` | `//` |
 | `.sh`, `.bash`, `.zsh`, `.py`, `.yaml`, `.yml`, `.env` | `#` |
 
 ## License

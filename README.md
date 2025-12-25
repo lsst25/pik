@@ -14,7 +14,29 @@ npm install -g @lsst/pik
 
 See [pik.nvim](https://github.com/lsst25/pik.nvim)
 
-## Plugins
+## Configuration
+
+Create a `pik.config.ts` (or `.pik.config.ts`) in your project root:
+
+```typescript
+export default {
+  // Enable select plugin
+  select: {
+    include: ["src/**/*.ts", "*.env"],
+  },
+
+  // Enable worktree plugin
+  worktree: {
+    baseDir: "../",
+    copyFiles: [".env.local"],
+    postCreate: "npm install",
+  },
+};
+```
+
+Plugins are enabled by adding their configuration key. If a plugin key is missing, that plugin won't be available.
+
+## Built-in Plugins
 
 ### Select Plugin
 
@@ -31,19 +53,7 @@ const API_URL = "https://dev.example.com"; // @pik:option Development
 // const API_URL = "https://example.com"; // @pik:option Production
 ```
 
-2. Create a config file (`pik.config.ts`):
-
-```typescript
-import { defineConfig } from "@lsst/pik";
-
-export default defineConfig({
-  select: {
-    include: ["src/**/*.ts", "*.html"],
-  },
-});
-```
-
-3. Switch options:
+2. Run:
 
 ```bash
 pik select              # Interactive mode
@@ -53,18 +63,92 @@ pik select set Environment Production  # Set directly
 
 #### Supported File Types
 
-- JavaScript/TypeScript (`.js`, `.ts`, `.jsx`, `.tsx`, `.mjs`, `.mts`)
-- HTML (`.html`, `.htm`) - for script tags
-- Shell (`.sh`, `.bash`, `.zsh`)
-- Python (`.py`)
-- YAML (`.yaml`, `.yml`)
-- Env files (`.env`)
+- JavaScript/TypeScript (`.js`, `.ts`, `.jsx`, `.tsx`, `.mjs`, `.mts`) - `//` comments
+- HTML (`.html`, `.htm`) - `//` comments (in script tags)
+- Shell (`.sh`, `.bash`, `.zsh`) - `#` comments
+- Python (`.py`) - `#` comments
+- YAML (`.yaml`, `.yml`) - `#` comments
+- Env files (`.env`) - `#` comments
+
+### Worktree Plugin
+
+Manage git worktrees with automatic setup.
+
+#### Usage
+
+```bash
+pik worktree              # Interactive mode
+pik worktree create       # Create a new worktree
+pik worktree list         # List all worktrees
+pik worktree remove       # Remove a worktree
+```
+
+#### Configuration
+
+```typescript
+export default {
+  worktree: {
+    baseDir: "../",                    // Where to create worktrees
+    copyFiles: [".env.local", ".pik.config.*"],  // Files to copy
+    postCreate: "npm install",         // Run after creation
+  },
+};
+```
+
+## External Plugins
+
+You can use third-party or custom plugins:
+
+```typescript
+import { myPlugin } from "pik-plugin-my";
+import { localPlugin } from "./my-local-plugin.js";
+
+export default {
+  // External plugins with their config
+  plugins: [
+    myPlugin({ apiKey: "xxx", timeout: 5000 }),
+    localPlugin({ enabled: true }),
+  ],
+
+  // Built-in plugins
+  select: { include: ["src/**/*.ts"] },
+};
+```
+
+### Creating a Plugin
+
+```typescript
+import type { Command } from "commander";
+import type { PikPlugin } from "@lsst/pik-core";
+
+interface MyPluginConfig {
+  apiKey: string;
+}
+
+export function myPlugin(config: MyPluginConfig): PikPlugin {
+  return {
+    name: "My Plugin",
+    description: "Does something cool",
+    command: "my",
+
+    register(program: Command) {
+      program
+        .command("my")
+        .description("My custom command")
+        .action(() => {
+          console.log(`Using: ${config.apiKey}`);
+        });
+    },
+  };
+}
+```
 
 ## Packages
 
 - [`@lsst/pik`](https://www.npmjs.com/package/@lsst/pik) - CLI tool
 - [`@lsst/pik-core`](https://www.npmjs.com/package/@lsst/pik-core) - Core library
 - [`@lsst/pik-plugin-select`](https://www.npmjs.com/package/@lsst/pik-plugin-select) - Select plugin
+- [`@lsst/pik-plugin-worktree`](https://www.npmjs.com/package/@lsst/pik-plugin-worktree) - Worktree plugin
 
 ## License
 
