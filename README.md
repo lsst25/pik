@@ -12,22 +12,7 @@ npm install -g @lsst/pik
 
 ### Neovim Plugin
 
-Using [lazy.nvim](https://github.com/folke/lazy.nvim):
-
-```lua
-{
-  "lsst25/pik",
-  dependencies = { "nvim-telescope/telescope.nvim" },
-  build = "npm install -g @lsst/pik",
-  config = function()
-    require("pik").setup()
-    require("telescope").load_extension("pik")
-  end,
-  keys = {
-    { "<leader>ps", "<cmd>Telescope pik<cr>", desc = "Pik switch" },
-  },
-}
-```
+See [pik.nvim](https://github.com/lsst25/pik.nvim)
 
 ## Usage
 
@@ -52,15 +37,11 @@ export default {
 
 ### 3. Switch options
 
-**CLI:**
 ```bash
 pik switch        # Interactive mode
 pik list          # List all selectors
 pik set Environment Production  # Set directly
 ```
-
-**Neovim:**
-Press `<leader>ps` to open the Telescope picker.
 
 ## Supported File Types
 
