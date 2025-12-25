@@ -1,3 +1,14 @@
+## 0.5.2 (2025-12-25)
+
+### 🚀 Features
+
+- **cli:** improve interactive navigation with back to plugins menu ([65a3903](https://github.com/lsst25/pik/commit/65a3903))
+- **cli:** only register plugins that are enabled in config ([327f933](https://github.com/lsst25/pik/commit/327f933))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.5.1 (2025-12-25)
 
 ### 🩹 Fixes
