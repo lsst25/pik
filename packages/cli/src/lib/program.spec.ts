@@ -140,7 +140,7 @@ describe('program', () => {
     });
 
     it('should skip invalid plugins and log error', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       const invalidPlugin = {
         name: 'Invalid',
         // missing description, command, register

@@ -7,7 +7,7 @@ describe('isValidPlugin', () => {
       name: 'Test Plugin',
       description: 'A test plugin',
       command: 'test',
-      register: () => {},
+      register: () => undefined,
     };
     expect(isValidPlugin(validPlugin)).toBe(true);
   });
@@ -18,7 +18,7 @@ describe('isValidPlugin', () => {
       description: 'A test plugin',
       command: 'test',
       aliases: ['t', 'tst'],
-      register: () => {},
+      register: () => undefined,
     };
     expect(isValidPlugin(validPlugin)).toBe(true);
   });
@@ -41,7 +41,7 @@ describe('isValidPlugin', () => {
     const plugin = {
       description: 'A test plugin',
       command: 'test',
-      register: () => {},
+      register: () => undefined,
     };
     expect(isValidPlugin(plugin)).toBe(false);
   });
@@ -50,7 +50,7 @@ describe('isValidPlugin', () => {
     const plugin = {
       name: 'Test Plugin',
       command: 'test',
-      register: () => {},
+      register: () => undefined,
     };
     expect(isValidPlugin(plugin)).toBe(false);
   });
@@ -59,7 +59,7 @@ describe('isValidPlugin', () => {
     const plugin = {
       name: 'Test Plugin',
       description: 'A test plugin',
-      register: () => {},
+      register: () => undefined,
     };
     expect(isValidPlugin(plugin)).toBe(false);
   });

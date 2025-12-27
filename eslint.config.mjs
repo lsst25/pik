@@ -14,12 +14,14 @@ export default [
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    ignores: ['**/*.spec.ts', '**/*.test.ts'],
     rules: {
       '@nx/enforce-module-boundaries': [
         'error',
         {
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          checkDynamicDependenciesExceptions: ['@lsst/pik-core'],
           depConstraints: [
             {
               sourceTag: '*',
