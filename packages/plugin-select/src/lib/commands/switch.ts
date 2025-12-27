@@ -70,7 +70,7 @@ export const switchCommand = new Command('switch')
         });
       } catch (error) {
         if (isExitPromptError(error)) {
-          return;
+          process.exit(0);
         }
         throw error;
       }
@@ -95,7 +95,7 @@ export const switchCommand = new Command('switch')
         });
       } catch (error) {
         if (isExitPromptError(error)) {
-          return;
+          process.exit(0);
         }
         throw error;
       }

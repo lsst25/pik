@@ -136,7 +136,7 @@ export const killportPlugin: PikPlugin = {
             await killPortInteractive(port, options.yes ?? false);
           } catch (error) {
             if (error instanceof Error && error.name === 'ExitPromptError') {
-              return;
+              process.exit(0);
             }
             throw error;
           }

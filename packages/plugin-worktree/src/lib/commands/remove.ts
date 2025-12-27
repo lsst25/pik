@@ -98,7 +98,7 @@ export const removeCommand = new Command('remove')
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'ExitPromptError') {
-          return;
+          process.exit(0);
         }
         console.error(pc.red(error.message));
       }

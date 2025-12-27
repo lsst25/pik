@@ -46,7 +46,7 @@ export const worktreePlugin: PikPlugin = {
         } catch (error) {
           // Handle Ctrl+C
           if (error instanceof Error && error.name === 'ExitPromptError') {
-            return;
+            process.exit(0);
           }
           throw error;
         }

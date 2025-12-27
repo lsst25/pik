@@ -168,7 +168,7 @@ export const createCommand = new Command('create')
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'ExitPromptError') {
-          return;
+          process.exit(0);
         }
         console.error(pc.red(error.message));
       }
