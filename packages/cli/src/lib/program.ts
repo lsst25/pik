@@ -74,6 +74,7 @@ export async function initializeProgram(): Promise<PikPlugin[]> {
 
     if (plugins.length === 1) {
       // Single plugin - run its default command
+      console.clear();
       const plugin = plugins[0];
       const cmd = program.commands.find((c) => c.name() === plugin.command);
       if (cmd) {
@@ -84,6 +85,7 @@ export async function initializeProgram(): Promise<PikPlugin[]> {
       const EXIT_VALUE = Symbol('exit');
 
       while (true) {
+        console.clear();
         let selectedPlugin: PikPlugin | typeof EXIT_VALUE;
 
         try {
