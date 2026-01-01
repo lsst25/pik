@@ -19,6 +19,7 @@ import '../types.js';
 interface CreateOptions {
   branch?: string;
   new?: boolean;
+  yes?: boolean;
 }
 
 export const createCommand = new Command('create')
@@ -27,6 +28,7 @@ export const createCommand = new Command('create')
   .argument('[name]', 'Name for the worktree directory')
   .option('-b, --branch <branch>', 'Branch to checkout (or create with -n)')
   .option('-n, --new', 'Create a new branch')
+  .option('-y, --yes', 'Skip confirmations (for programmatic use)')
   .action(async (name: string | undefined, options: CreateOptions) => {
     try {
       const repoRoot = await getRepoRoot();
@@ -143,10 +145,12 @@ export const createCommand = new Command('create')
 
       // Run post-create command if configured
       if (worktreeConfig.postCreate) {
-        const shouldRun = await confirm({
-          message: `Run "${worktreeConfig.postCreate}"?`,
-          default: true,
-        });
+        const shouldRun =
+          options.yes ||
+          (await confirm({
+            message: `Run "${worktreeConfig.postCreate}"?`,
+            default: true,
+          }));
 
         if (shouldRun) {
           console.log(pc.dim(`Running: ${worktreeConfig.postCreate}`));
