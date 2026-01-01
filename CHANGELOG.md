@@ -1,3 +1,19 @@
+## 0.6.4 (2026-01-01)
+
+### 🚀 Features
+
+- **cli:** clear console on startup and when returning to main menu ([806927e](https://github.com/lsst25/pik/commit/806927e))
+- **plugin-worktree:** add --yes flag to skip confirmations ([89ea634](https://github.com/lsst25/pik/commit/89ea634))
+
+### 🩹 Fixes
+
+- **cli:** make ctrl+c always quit instead of navigating back ([7ff9342](https://github.com/lsst25/pik/commit/7ff9342))
+- **eslint:** resolve lint errors and module boundary warnings ([98708c3](https://github.com/lsst25/pik/commit/98708c3))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.3 (2025-12-25)
 
 ### 🚀 Features
