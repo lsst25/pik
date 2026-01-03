@@ -1,6 +1,12 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__memento__semantic_search",
+      "mcp__nx-mcp__nx_workspace"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "nx-mcp"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
