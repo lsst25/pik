@@ -1,7 +1,7 @@
 {
   "name": "@lsst/pik",
   "version": "0.6.4",
-  "description": "CLI tool for switching config options in source files",
+  "description": "Extensible CLI toolkit for simplifying developers' everyday tasks like config switching and worktree management",
   "type": "module",
   "license": "MIT",
   "author": "Yurii Tatar <lsst25@gmail.com>",
@@ -11,13 +11,19 @@
     "directory": "packages/cli"
   },
   "keywords": [
+    "toolkit",
     "cli",
+    "plugin",
     "config",
     "configuration",
     "switch",
     "toggle",
     "environment",
-    "env"
+    "env",
+    "worktree",
+    "git",
+    "developer-tools",
+    "monorepo"
   ],
   "bin": {
     "pik": "./dist/bin/pik.js"
