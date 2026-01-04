@@ -4,6 +4,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "build:cli": "nx run pik:build",
+    "link:cli": "cd packages/cli && npm link",
     "release": "nx release",
     "release:patch": "nx release patch",
     "release:minor": "nx release minor",
