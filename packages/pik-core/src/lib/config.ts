@@ -2,6 +2,7 @@ import { pathToFileURL } from 'url';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 import type { PikPlugin } from './types/plugin.js';
+import { CONFIG_FILES } from './config-files.js';
 
 /**
  * Base config interface - plugins extend this via declaration merging
@@ -31,17 +32,6 @@ export interface PikConfig {
 export function defineConfig<T extends PikConfig>(config: T): T {
   return config;
 }
-
-const CONFIG_FILES = [
-  'pik.config.mts',
-  'pik.config.ts',
-  'pik.config.mjs',
-  'pik.config.js',
-  '.pik.config.mts',
-  '.pik.config.ts',
-  '.pik.config.mjs',
-  '.pik.config.js',
-];
 
 /**
  * Load pik config from the current directory

@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "mcp__memento__semantic_search",
-      "mcp__nx-mcp__nx_workspace"
+      "mcp__nx-mcp__nx_workspace",
+      "mcp__nx-mcp__nx_project_details"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -9,6 +9,7 @@ export {
   isValidPlugin,
   type PikConfig,
 } from './lib/config.js';
+export { CONFIG_FILES } from './lib/config-files.js';
 
 // Parser
 export { Parser } from './lib/parser.js';
