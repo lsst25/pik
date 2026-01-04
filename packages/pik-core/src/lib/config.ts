@@ -1,8 +1,5 @@
-import { pathToFileURL } from 'url';
-import { existsSync } from 'fs';
-import { resolve } from 'path';
+import { cosmiconfig } from 'cosmiconfig';
 import type { PikPlugin } from './types/plugin.js';
-import { CONFIG_FILES } from './config-files.js';
 
 /**
  * Base config interface - plugins extend this via declaration merging
@@ -34,17 +31,35 @@ export function defineConfig<T extends PikConfig>(config: T): T {
 }
 
 /**
- * Load pik config from the current directory
+ * Load pik config by searching up the directory tree
+ * Uses cosmiconfig to search for config files starting from cwd
+ * Uses 'global' strategy to search up to home directory
  */
-export async function loadConfig(cwd: string = process.cwd()): Promise<PikConfig | null> {
-  for (const configFile of CONFIG_FILES) {
-    const configPath = resolve(cwd, configFile);
+export async function loadConfig(
+  cwd: string = process.cwd(),
+): Promise<PikConfig | null> {
+  const explorer = cosmiconfig('pik', {
+    searchStrategy: 'global',
+  });
+  const result = await explorer.search(cwd);
 
-    if (existsSync(configPath)) {
-      const configUrl = pathToFileURL(configPath).href;
-      const module = await import(configUrl);
-      return module.default as PikConfig;
-    }
+  return result?.config ?? null;
+}
+
+/**
+ * Check if a pik config file exists in the specified directory (not parent directories)
+ * Returns the config file name if found, null otherwise
+ */
+export async function findLocalConfig(
+  cwd: string = process.cwd(),
+): Promise<string | null> {
+  const explorer = cosmiconfig('pik', {
+    searchStrategy: 'none',
+  });
+  const result = await explorer.search(cwd);
+
+  if (result) {
+    return result.filepath.split('/').pop() || null;
   }
 
   return null;

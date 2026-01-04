@@ -1,12 +1,12 @@
 import { Command } from 'commander';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { existsSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 import {
   loadConfig,
+  findLocalConfig,
   isValidPlugin,
-  CONFIG_FILES,
   type PikPlugin,
 } from '@lsst/pik-core';
 import { selectPlugin } from '@lsst/pik-plugin-select';
@@ -87,19 +87,17 @@ const DEFAULT_CONFIG = `export default {
 program
   .command('init')
   .description('Create a default pik config file')
-  .action(() => {
+  .action(async () => {
     const cwd = process.cwd();
+    const fileName = 'pik.config.mjs';
+    const configPath = resolve(cwd, fileName);
 
-    for (const configFile of CONFIG_FILES) {
-      const configPath = resolve(cwd, configFile);
-      if (existsSync(configPath)) {
-        console.log(pc.yellow(`Config file already exists: ${configFile}`));
-        return;
-      }
+    const existingConfig = await findLocalConfig(cwd);
+    if (existingConfig) {
+      console.log(pc.yellow(`Config file already exists: ${existingConfig}`));
+      return;
     }
 
-    const fileName = CONFIG_FILES[0];
-    const configPath = resolve(cwd, fileName);
     writeFileSync(configPath, DEFAULT_CONFIG, 'utf-8');
 
     console.log(pc.green('✓') + ' Created ' + pc.bold(fileName));
