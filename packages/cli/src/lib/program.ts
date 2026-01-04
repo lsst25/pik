@@ -98,10 +98,11 @@ program
       }
     }
 
-    const configPath = resolve(cwd, '.pik.config.js');
+    const fileName = CONFIG_FILES[0];
+    const configPath = resolve(cwd, fileName);
     writeFileSync(configPath, DEFAULT_CONFIG, 'utf-8');
 
-    console.log(pc.green('✓') + ' Created ' + pc.bold('.pik.config.js'));
+    console.log(pc.green('✓') + ' Created ' + pc.bold(fileName));
     console.log(pc.dim('Edit the config file to enable plugins'));
   });
 
