@@ -1,3 +1,14 @@
+## 0.6.5 (2026-01-04)
+
+### 🚀 Features
+
+- **cli:** add init command to generate default config file ([3521d16](https://github.com/lsst25/pik/commit/3521d16))
+- **core:** add cosmiconfig integration for config discovery ([c7045c7](https://github.com/lsst25/pik/commit/c7045c7))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.4 (2026-01-01)
 
 ### 🚀 Features
