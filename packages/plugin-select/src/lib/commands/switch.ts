@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
-import { extname, relative } from 'path';
+import { relative } from 'path';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
 import { SingleSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
@@ -105,8 +105,7 @@ export const switchCommand = new Command('switch')
       }
 
       // Apply the change
-      const extension = extname(selectedChoice.file.path);
-      const switcher = SingleSwitcher.forExtension(extension);
+      const switcher = SingleSwitcher.forFilePath(selectedChoice.file.path);
       const newContent = switcher.switch(
         selectedChoice.file.content,
         selectedChoice.selector,

@@ -14,6 +14,13 @@ export class SingleSwitcher extends Switcher {
   }
 
   /**
+   * Create a switcher for a file path, correctly handling dotfiles like .env
+   */
+  static forFilePath(filePath: string): SingleSwitcher {
+    return new SingleSwitcher(CommentStyle.fromFilePath(filePath));
+  }
+
+  /**
    * Switch to a specific option, deactivating all others
    */
   switch(content: string, selector: Selector, optionName: string): string {

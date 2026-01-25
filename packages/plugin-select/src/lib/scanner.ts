@@ -1,6 +1,5 @@
 import { readFile } from 'fs/promises';
 import { glob } from 'glob';
-import { extname } from 'path';
 import { Parser, type Selector } from '@lsst/pik-core';
 import type { SelectConfig } from './types.js';
 
@@ -24,8 +23,7 @@ export class Scanner {
 
     for (const filePath of files) {
       const content = await readFile(filePath, 'utf-8');
-      const extension = extname(filePath);
-      const parser = Parser.forExtension(extension);
+      const parser = Parser.forFilePath(filePath);
       const { selectors } = parser.parse(content);
 
       if (selectors.length > 0) {
