@@ -2,6 +2,68 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from './parser.js';
 
 describe('Parser', () => {
+  describe('forFilePath', () => {
+    it('should parse .env files with hash comments', () => {
+      const content = `
+# @pik:select API
+# API_URL=http://localhost:3000  # @pik:option Local
+API_URL=https://api.example.com  # @pik:option Production
+`.trim();
+
+      const parser = Parser.forFilePath('/project/.env');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].name).toBe('API');
+      expect(result.selectors[0].options[0].isActive).toBe(false);
+      expect(result.selectors[0].options[1].isActive).toBe(true);
+    });
+
+    it('should parse .env.local files with hash comments', () => {
+      const content = `
+# @pik:select Database
+# DB_HOST=localhost  # @pik:option Local
+DB_HOST=db.example.com  # @pik:option Production
+`.trim();
+
+      const parser = Parser.forFilePath('/project/.env.local');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].options[0].isActive).toBe(false);
+      expect(result.selectors[0].options[1].isActive).toBe(true);
+    });
+
+    it('should parse .env.development files with hash comments', () => {
+      const content = `
+# @pik:select Mode
+DEBUG=true  # @pik:option Debug
+# DEBUG=false  # @pik:option NoDebug
+`.trim();
+
+      const parser = Parser.forFilePath('.env.development');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].options[0].isActive).toBe(true);
+    });
+
+    it('should parse regular .ts files with slash comments', () => {
+      const content = `
+// @pik:select Env
+const env = 'dev'; // @pik:option Dev
+// const env = 'prod'; // @pik:option Prod
+`.trim();
+
+      const parser = Parser.forFilePath('/project/src/config.ts');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].options[0].isActive).toBe(true);
+      expect(result.selectors[0].options[1].isActive).toBe(false);
+    });
+  });
+
   describe('parse', () => {
     it('should parse a single selector with options', () => {
       const content = `

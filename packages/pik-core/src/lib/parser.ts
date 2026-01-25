@@ -18,6 +18,13 @@ export class Parser {
   }
 
   /**
+   * Create a parser for a file path, correctly handling dotfiles like .env
+   */
+  static forFilePath(filePath: string): Parser {
+    return new Parser(CommentStyle.fromFilePath(filePath));
+  }
+
+  /**
    * Parse content string for pik selectors and options
    */
   parse(content: string): ParseResult {
