@@ -1,3 +1,13 @@
+## 0.6.6 (2026-01-25)
+
+### 🩹 Fixes
+
+- **core:** handle dotfiles correctly in comment style detection ([bdd8513](https://github.com/lsst25/pik/commit/bdd8513))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.5 (2026-01-04)
 
 ### 🚀 Features
