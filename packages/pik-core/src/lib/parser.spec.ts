@@ -72,7 +72,7 @@ const env = 'dev'; // @pik:option Dev
 const env = LOCAL;     // @pik:option LOCAL
 `.trim();
 
-      const parser = Parser.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -88,7 +88,7 @@ const env = LOCAL;     // @pik:option LOCAL
 const env = LOCAL;     // @pik:option LOCAL
 `.trim();
 
-      const parser = Parser.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
       const [devOption, localOption] = result.selectors[0].options;
@@ -111,7 +111,7 @@ const theme = 'dark';   // @pik:option dark
 // const theme = 'light'; // @pik:option light
 `.trim();
 
-      const parser = Parser.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(2);
@@ -126,7 +126,7 @@ const theme = 'dark';   // @pik:option dark
 export MODE=production     # @pik:option production
 `.trim();
 
-      const parser = Parser.forExtension('sh');
+      const parser = Parser.forFilePath('test.sh');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -143,7 +143,7 @@ export MODE=production     # @pik:option production
 </script>
 `.trim();
 
-      const parser = Parser.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -161,7 +161,7 @@ export MODE=production     # @pik:option production
 <!-- <link rel="stylesheet" href="light.css"> --> <!-- @pik:option Light -->
 `.trim();
 
-      const parser = Parser.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -186,7 +186,7 @@ export MODE=production     # @pik:option production
 </script>
 `.trim();
 
-      const parser = Parser.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(2);
@@ -197,7 +197,7 @@ export MODE=production     # @pik:option production
     it('should preserve original content in result', () => {
       const content = '// @pik:select Test\nconst x = 1; // @pik:option A';
 
-      const parser = Parser.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
       expect(result.content).toBe(content);
@@ -212,7 +212,7 @@ export MODE=production     # @pik:option production
 <!-- <script src="http://localhost:3000/viewer.js"></script> -->
 `.trim();
 
-      const parser = Parser.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -245,7 +245,7 @@ export MODE=production
 # export MODE=development
 `.trim();
 
-      const parser = Parser.forExtension('sh');
+      const parser = Parser.forFilePath('test.sh');
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
@@ -268,7 +268,7 @@ export MODE=production
 const env = 'dev'; // @pik:option Dev
 `.trim();
 
-      const parser = Parser.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
       const option = result.selectors[0].options[0];

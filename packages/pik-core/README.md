@@ -22,11 +22,11 @@ const env = 'LOCAL';     // @pik:option LOCAL
 `;
 
 // Parse content
-const parser = Parser.forExtension('ts');
+const parser = Parser.forFilePath('config.ts');
 const { selectors } = parser.parse(content);
 
 // Switch option
-const switcher = SingleSwitcher.forExtension('ts');
+const switcher = SingleSwitcher.forFilePath('config.ts');
 const newContent = switcher.switch(content, selectors[0], 'DEV');
 ```
 
@@ -84,8 +84,8 @@ export function myPlugin(config: MyPluginConfig): PikPlugin {
 ### Parser
 
 ```typescript
-// Create parser for file extension
-const parser = Parser.forExtension('ts');
+// Create parser for file path
+const parser = Parser.forFilePath('src/config.ts');
 
 // Parse content
 const result = parser.parse(content);
@@ -96,8 +96,8 @@ const result = parser.parse(content);
 ### SingleSwitcher
 
 ```typescript
-// Create switcher for file extension
-const switcher = SingleSwitcher.forExtension('ts');
+// Create switcher for file path
+const switcher = SingleSwitcher.forFilePath('src/config.ts');
 
 // Switch to option (deactivates all others)
 const newContent = switcher.switch(content, selector, 'optionName');
@@ -108,8 +108,8 @@ const newContent = switcher.switch(content, selector, 'optionName');
 ```typescript
 import { CommentStyle } from '@lsst/pik-core';
 
-// Get comment style for extension
-const style = CommentStyle.fromExtension('py'); // { lineComment: '#' }
+// Get comment style for file path
+const style = CommentStyle.fromFilePath('script.py'); // { lineComment: '#' }
 
 // Register custom style
 CommentStyle.register('custom', new CommentStyle(';;'));

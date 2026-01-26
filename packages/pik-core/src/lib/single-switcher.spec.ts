@@ -11,8 +11,8 @@ describe('SingleSwitcher', () => {
 const env = LOCAL;     // @pik:option LOCAL
 `.trim();
 
-      const parser = Parser.forExtension('ts');
-      const switcher = SingleSwitcher.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
+      const switcher = SingleSwitcher.forFilePath('test.ts');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'DEV');
@@ -29,8 +29,8 @@ const size = 'small';  // @pik:option small
 // const size = 'large';  // @pik:option large
 `.trim();
 
-      const parser = Parser.forExtension('ts');
-      const switcher = SingleSwitcher.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
+      const switcher = SingleSwitcher.forFilePath('test.ts');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'large');
@@ -47,8 +47,8 @@ const size = 'small';  // @pik:option small
 const env = LOCAL; // @pik:option LOCAL
 `.trim();
 
-      const parser = Parser.forExtension('ts');
-      const switcher = SingleSwitcher.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
+      const switcher = SingleSwitcher.forFilePath('test.ts');
 
       const result = parser.parse(content);
 
@@ -64,8 +64,8 @@ const env = LOCAL; // @pik:option LOCAL
     // const env = LOCAL; // @pik:option LOCAL
 `.trim();
 
-      const parser = Parser.forExtension('ts');
-      const switcher = SingleSwitcher.forExtension('ts');
+      const parser = Parser.forFilePath('test.ts');
+      const switcher = SingleSwitcher.forFilePath('test.ts');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'LOCAL');
@@ -82,8 +82,8 @@ export MODE=development  # @pik:option development
 # export MODE=production # @pik:option production
 `.trim();
 
-      const parser = Parser.forExtension('sh');
-      const switcher = SingleSwitcher.forExtension('sh');
+      const parser = Parser.forFilePath('test.sh');
+      const switcher = SingleSwitcher.forFilePath('test.sh');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(
@@ -103,8 +103,8 @@ export MODE=development  # @pik:option development
 <!-- <link rel="stylesheet" href="light.css"> --> <!-- @pik:option Light -->
 `.trim();
 
-      const parser = Parser.forExtension('html');
-      const switcher = SingleSwitcher.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
+      const switcher = SingleSwitcher.forFilePath('test.html');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'Light');
@@ -121,8 +121,8 @@ export MODE=development  # @pik:option development
 <script src="prod.js"></script> <!-- @pik:option Prod -->
 `.trim();
 
-      const parser = Parser.forExtension('html');
-      const switcher = SingleSwitcher.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
+      const switcher = SingleSwitcher.forFilePath('test.html');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'Dev');
@@ -144,8 +144,8 @@ export MODE=development  # @pik:option development
 <!-- <script src="http://localhost:3000/viewer.js"></script> -->
 `.trim();
 
-      const parser = Parser.forExtension('html');
-      const switcher = SingleSwitcher.forExtension('html');
+      const parser = Parser.forFilePath('test.html');
+      const switcher = SingleSwitcher.forFilePath('test.html');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(content, result.selectors[0], 'Local');
@@ -168,8 +168,8 @@ export MODE=production
 # export MODE=development
 `.trim();
 
-      const parser = Parser.forExtension('sh');
-      const switcher = SingleSwitcher.forExtension('sh');
+      const parser = Parser.forFilePath('test.sh');
+      const switcher = SingleSwitcher.forFilePath('test.sh');
 
       const result = parser.parse(content);
       const newContent = switcher.switch(

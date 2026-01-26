@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
-import { extname, relative } from 'path';
+import { relative } from 'path';
 import pc from 'picocolors';
 import { SingleSwitcher, loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
@@ -28,8 +28,7 @@ export const setCommand = new Command('set')
 
       if (selector) {
         found = true;
-        const extension = extname(file.path);
-        const switcher = SingleSwitcher.forExtension(extension);
+        const switcher = SingleSwitcher.forFilePath(file.path);
 
         try {
           const newContent = switcher.switch(file.content, selector, optionName);

@@ -51,19 +51,9 @@ export class CommentStyle {
   }
 
   /**
-   * Get comment style for a file extension
-   */
-  static fromExtension(extension: string): CommentStyle {
-    const ext = extension.replace(/^\./, '').toLowerCase();
-    return CommentStyle.styles[ext] ?? CommentStyle.defaultStyle;
-  }
-
-  /**
-   * Get comment style for a file path, handling dotfiles like .env correctly.
+   * Get comment style for a file path.
    *
-   * Unlike fromExtension(), this method properly handles:
-   * - `.env` files (where extname returns '')
-   * - `.env.local`, `.env.development`, etc. (where extname returns '.local', '.development')
+   * Handles dotfiles like `.env`, `.env.local`, `.env.development` correctly.
    */
   static fromFilePath(filePath: string): CommentStyle {
     const basename = filePath.split(/[/\\]/).pop() ?? '';

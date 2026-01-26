@@ -2,28 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { CommentStyle } from './comment-style.js';
 
 describe('CommentStyle', () => {
-  describe('fromExtension', () => {
-    it('should return hash comment for env extension', () => {
-      const style = CommentStyle.fromExtension('env');
-      expect(style.lineComment).toBe('#');
-    });
-
-    it('should return slash comment for js extension', () => {
-      const style = CommentStyle.fromExtension('js');
-      expect(style.lineComment).toBe('//');
-    });
-
-    it('should handle extension with leading dot', () => {
-      const style = CommentStyle.fromExtension('.ts');
-      expect(style.lineComment).toBe('//');
-    });
-
-    it('should return default style for unknown extension', () => {
-      const style = CommentStyle.fromExtension('xyz');
-      expect(style.lineComment).toBe('//');
-    });
-  });
-
   describe('fromFilePath', () => {
     it('should return hash comment for .env file', () => {
       const style = CommentStyle.fromFilePath('/path/to/.env');

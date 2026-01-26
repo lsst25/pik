@@ -11,14 +11,7 @@ export class Parser {
   constructor(private readonly commentStyle: CommentStyle) {}
 
   /**
-   * Create a parser for a specific file extension
-   */
-  static forExtension(extension: string): Parser {
-    return new Parser(CommentStyle.fromExtension(extension));
-  }
-
-  /**
-   * Create a parser for a file path, correctly handling dotfiles like .env
+   * Create a parser for a file path
    */
   static forFilePath(filePath: string): Parser {
     return new Parser(CommentStyle.fromFilePath(filePath));

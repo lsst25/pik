@@ -7,14 +7,7 @@ import { Switcher } from './switcher.js';
  */
 export class SingleSwitcher extends Switcher {
   /**
-   * Create a switcher for a specific file extension
-   */
-  static forExtension(extension: string): SingleSwitcher {
-    return new SingleSwitcher(CommentStyle.fromExtension(extension));
-  }
-
-  /**
-   * Create a switcher for a file path, correctly handling dotfiles like .env
+   * Create a switcher for a file path
    */
   static forFilePath(filePath: string): SingleSwitcher {
     return new SingleSwitcher(CommentStyle.fromFilePath(filePath));
