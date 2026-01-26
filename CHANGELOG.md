@@ -1,3 +1,13 @@
+## 0.6.7 (2026-01-26)
+
+### 🩹 Fixes
+
+- **core:** remove forExtension in favor of forFilePath ([75df82b](https://github.com/lsst25/pik/commit/75df82b))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.6 (2026-01-25)
 
 ### 🩹 Fixes

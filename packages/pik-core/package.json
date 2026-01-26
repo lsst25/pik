@@ -1,6 +1,6 @@
 {
   "name": "@lsst/pik-core",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Core library for parsing and switching @pik config markers",
   "type": "module",
   "license": "MIT",
