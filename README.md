@@ -65,6 +65,22 @@ const API_URL = "https://dev.example.com"; // @pik:option Development
 <!-- <script src="http://localhost:3000/viewer.js"></script> -->
 ```
 
+**Block style** - for multi-line options:
+
+```bash
+# @pik:select Environment
+# @pik:block-start Development
+API_URL=http://localhost:3000
+DEBUG=true
+LOG_LEVEL=debug
+# @pik:block-end
+# @pik:block-start Production
+# API_URL=https://api.example.com
+# DEBUG=false
+# LOG_LEVEL=error
+# @pik:block-end
+```
+
 2. Run:
 
 ```bash

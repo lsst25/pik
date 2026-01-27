@@ -43,7 +43,9 @@ pik select set <name> <option>  # Set directly
 ## Marker Syntax
 
 - `@pik:select <name>` - Defines a selector group
-- `@pik:option <name>` - Marks an option within a selector
+- `@pik:option <name>` - Marks a single-line option within a selector
+- `@pik:block-start <name>` - Starts a multi-line block option
+- `@pik:block-end` - Ends a multi-line block option
 
 ### Inline Style
 
@@ -66,6 +68,28 @@ Marker on its own line, content on the next line (useful for HTML):
 <!-- @pik:option Local -->
 <!-- <script src="http://localhost:3000/viewer.js"></script> -->
 ```
+
+### Block Style
+
+For multi-line options where you need to switch entire blocks of configuration:
+
+```bash
+# @pik:select Environment
+# @pik:block-start Development
+API_URL=http://localhost:3000
+DEBUG=true
+LOG_LEVEL=debug
+# @pik:block-end
+# @pik:block-start Production
+# API_URL=https://api.example.com
+# DEBUG=false
+# LOG_LEVEL=error
+# @pik:block-end
+```
+
+When switching blocks:
+- The selected block's content lines are uncommented
+- All other blocks' content lines are commented out
 
 ## Supported File Types
 
