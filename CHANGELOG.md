@@ -1,3 +1,13 @@
+## 0.7.0 (2026-01-27)
+
+### 🚀 Features
+
+- **core:** add multiline block select support ([2a3a2ce](https://github.com/lsst25/pik/commit/2a3a2ce))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.6.7 (2026-01-26)
 
 ### 🩹 Fixes
