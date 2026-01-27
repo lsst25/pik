@@ -275,5 +275,146 @@ const env = 'dev'; // @pik:option Dev
       expect(option.line).toBe(2);
       expect(option.contentLine).toBe(2);
     });
+
+    it('should parse block options with block-start and block-end', () => {
+      const content = `
+// @pik:select Environment
+// @pik:block-start Development
+API_URL=http://localhost
+DEBUG=true
+PORT=3000
+// @pik:block-end
+// @pik:block-start Production
+// API_URL=https://api.example.com
+// DEBUG=false
+// PORT=443
+// @pik:block-end
+`.trim();
+
+      const parser = Parser.forFilePath('test.ts');
+      const result = parser.parse(content);
+
+      expect(result.selectors).toHaveLength(1);
+      expect(result.selectors[0].name).toBe('Environment');
+      expect(result.selectors[0].options).toHaveLength(0);
+      expect(result.selectors[0].blockOptions).toHaveLength(2);
+
+      const [dev, prod] = result.selectors[0].blockOptions;
+
+      expect(dev.name).toBe('Development');
+      expect(dev.startLine).toBe(2);
+      expect(dev.endLine).toBe(6);
+      expect(dev.contentLines).toEqual([3, 4, 5]);
+      expect(dev.isActive).toBe(true);
+
+      expect(prod.name).toBe('Production');
+      expect(prod.startLine).toBe(7);
+      expect(prod.endLine).toBe(11);
+      expect(prod.contentLines).toEqual([8, 9, 10]);
+      expect(prod.isActive).toBe(false);
+    });
+
+    it('should detect active block based on first content line', () => {
+      const content = `
+# @pik:select Config
+# @pik:block-start Dev
+# URL=localhost
+# PORT=3000
+# @pik:block-end
+# @pik:block-start Prod
+URL=prod.com
+PORT=443
+# @pik:block-end
+`.trim();
+
+      const parser = Parser.forFilePath('test.sh');
+      const result = parser.parse(content);
+
+      const [dev, prod] = result.selectors[0].blockOptions;
+
+      expect(dev.isActive).toBe(false);
+      expect(prod.isActive).toBe(true);
+    });
+
+    it('should handle empty blocks', () => {
+      const content = `
+// @pik:select Empty
+// @pik:block-start A
+// @pik:block-end
+// @pik:block-start B
+// @pik:block-end
+`.trim();
+
+      const parser = Parser.forFilePath('test.ts');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0].blockOptions).toHaveLength(2);
+      expect(result.selectors[0].blockOptions[0].contentLines).toEqual([]);
+      expect(result.selectors[0].blockOptions[0].isActive).toBe(false);
+    });
+
+    it('should handle single-line blocks', () => {
+      const content = `
+// @pik:select Single
+// @pik:block-start A
+const x = 1;
+// @pik:block-end
+// @pik:block-start B
+// const x = 2;
+// @pik:block-end
+`.trim();
+
+      const parser = Parser.forFilePath('test.ts');
+      const result = parser.parse(content);
+
+      const [a, b] = result.selectors[0].blockOptions;
+
+      expect(a.contentLines).toEqual([3]);
+      expect(a.isActive).toBe(true);
+
+      expect(b.contentLines).toEqual([6]);
+      expect(b.isActive).toBe(false);
+    });
+
+    it('should handle block options with HTML comments', () => {
+      const content = `
+<!-- @pik:select Scripts -->
+<!-- @pik:block-start Dev -->
+<script src="dev1.js"></script>
+<script src="dev2.js"></script>
+<!-- @pik:block-end -->
+<!-- @pik:block-start Prod -->
+<!-- <script src="prod1.js"></script> -->
+<!-- <script src="prod2.js"></script> -->
+<!-- @pik:block-end -->
+`.trim();
+
+      const parser = Parser.forFilePath('test.html');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0].blockOptions).toHaveLength(2);
+
+      const [dev, prod] = result.selectors[0].blockOptions;
+
+      expect(dev.name).toBe('Dev');
+      expect(dev.isActive).toBe(true);
+
+      expect(prod.name).toBe('Prod');
+      expect(prod.isActive).toBe(false);
+    });
+
+    it('should initialize blockOptions as empty array for selectors without blocks', () => {
+      const content = `
+// @pik:select Env
+const env = 'dev'; // @pik:option Dev
+// const env = 'prod'; // @pik:option Prod
+`.trim();
+
+      const parser = Parser.forFilePath('test.ts');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0].blockOptions).toEqual([]);
+      expect(result.selectors[0].options).toHaveLength(2);
+    });
   });
 });

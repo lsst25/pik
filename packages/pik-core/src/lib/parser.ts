@@ -1,4 +1,4 @@
-import type { Option, ParseResult, Selector } from './types/index.js';
+import type { BlockOption, Option, ParseResult, Selector } from './types/index.js';
 import { CommentStyle } from './types/index.js';
 
 /**
@@ -7,6 +7,8 @@ import { CommentStyle } from './types/index.js';
 export class Parser {
   private static readonly SELECT_REGEX = /@pik:select\s+(\S+)/;
   private static readonly OPTION_REGEX = /@pik:option\s+(\S+)/;
+  private static readonly BLOCK_START_REGEX = /@pik:block-start\s+(\S+)/;
+  private static readonly BLOCK_END_REGEX = /@pik:block-end/;
 
   constructor(private readonly commentStyle: CommentStyle) {}
 
@@ -24,6 +26,7 @@ export class Parser {
     const lines = content.split('\n');
     const selectors: Selector[] = [];
     let currentSelector: Selector | null = null;
+    let currentBlock: { name: string; startLine: number; contentLines: number[] } | null = null;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -36,12 +39,50 @@ export class Parser {
           name: selectMatch[1],
           line: lineNumber,
           options: [],
+          blockOptions: [],
         };
         selectors.push(currentSelector);
         continue;
       }
 
-      // Check for option
+      // Check for block-start
+      const blockStartMatch = line.match(Parser.BLOCK_START_REGEX);
+      if (blockStartMatch && currentSelector) {
+        currentBlock = {
+          name: blockStartMatch[1],
+          startLine: lineNumber,
+          contentLines: [],
+        };
+        continue;
+      }
+
+      // Check for block-end
+      const blockEndMatch = line.match(Parser.BLOCK_END_REGEX);
+      if (blockEndMatch && currentSelector && currentBlock) {
+        // Determine if block is active by checking if first content line is uncommented
+        const isActive = currentBlock.contentLines.length > 0
+          ? !this.isLineCommented(lines[currentBlock.contentLines[0] - 1])
+          : false;
+
+        const blockOption: BlockOption = {
+          name: currentBlock.name,
+          startLine: currentBlock.startLine,
+          endLine: lineNumber,
+          contentLines: currentBlock.contentLines,
+          isActive,
+        };
+        currentSelector.blockOptions.push(blockOption);
+        currentBlock = null;
+        continue;
+      }
+
+      // If inside a block, collect content lines
+      if (currentBlock) {
+        currentBlock.contentLines.push(lineNumber);
+        continue;
+      }
+
+      // Check for option (single-line)
       const optionMatch = line.match(Parser.OPTION_REGEX);
       if (optionMatch && currentSelector) {
         // Check if this is a standalone marker (marker only on its own line)
