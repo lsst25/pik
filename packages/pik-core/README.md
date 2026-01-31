@@ -37,7 +37,7 @@ Load pik configuration from project files:
 ```typescript
 import { loadConfig, defineConfig } from '@lsst/pik-core';
 
-// Load config (looks for pik.config.ts, .pik.config.ts, etc.)
+// Load config (looks for pik.config.ts, .pikrc, etc.)
 const config = await loadConfig();
 
 // Type-safe config definition

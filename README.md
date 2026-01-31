@@ -16,7 +16,7 @@ See [pik.nvim](https://github.com/lsst25/pik.nvim)
 
 ## Configuration
 
-Create a `pik.config.ts` (or `.pik.config.ts`) in your project root:
+Create a `pik.config.ts` in your project root:
 
 ```typescript
 export default {
