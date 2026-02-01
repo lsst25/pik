@@ -1,4 +1,4 @@
-import type { BaseSelector } from './selector.js';
+import type { BaseSelector } from '../selector/index.js';
 
 /**
  * Result of parsing a file or content string
