@@ -89,6 +89,34 @@ pik select list         # List all selectors
 pik select set Environment Production  # Set directly
 ```
 
+#### Profiles
+
+Switch multiple selectors at once using profiles:
+
+```typescript
+export default {
+  select: {
+    include: ["src/**/*.ts", "*.env"],
+    profiles: {
+      dev: {
+        Environment: "Development",
+        Database: "SQLite",
+      },
+      prod: {
+        Environment: "Production",
+        Database: "Postgres",
+      },
+    },
+  },
+};
+```
+
+```bash
+pik select profiles         # List all profiles with status
+pik select profile          # Interactive profile picker
+pik select profile dev      # Apply a profile directly
+```
+
 #### Supported File Types
 
 - JavaScript/TypeScript (`.js`, `.ts`, `.jsx`, `.tsx`, `.mjs`, `.mts`) - `//` comments

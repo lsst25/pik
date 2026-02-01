@@ -40,6 +40,47 @@ pik select list         # List all selectors
 pik select set <name> <option>  # Set directly
 ```
 
+## Profiles
+
+Switch multiple selectors at once using profiles. Configure them in `pik.config.ts`:
+
+```typescript
+import { defineConfig } from '@lsst/pik';
+
+export default defineConfig({
+  select: {
+    include: ['src/**/*.ts', '.env'],
+    profiles: {
+      dev: {
+        Environment: 'Development',
+        Database: 'SQLite',
+        Theme: 'dark',
+      },
+      prod: {
+        Environment: 'Production',
+        Database: 'Postgres',
+        Theme: 'light',
+      },
+    },
+  },
+});
+```
+
+### Profile Commands
+
+```bash
+pik select profiles         # List all profiles with their status
+pik select profile          # Interactive profile picker
+pik select profile dev      # Apply a profile directly
+```
+
+### Profile Status
+
+When listing profiles, each shows its status:
+- **Green (●)** - Fully active: all selectors match
+- **Yellow (●)** - Partially active: some selectors match
+- **Gray (○)** - Inactive: no selectors match
+
 ## Marker Syntax
 
 - `@pik:select <name>` - Defines a selector group
