@@ -1,5 +1,6 @@
 // Types
-export type { Option, BlockOption, Selector, ParseResult, PikPlugin } from './lib/types/index.js';
+export type { Option, BlockOption, ParseResult, PikPlugin } from './lib/types/index.js';
+export { BaseSelector, Selector, BlockSelector } from './lib/types/index.js';
 export { CommentStyle } from './lib/types/index.js';
 
 // Config

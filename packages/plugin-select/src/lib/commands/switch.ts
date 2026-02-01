@@ -3,47 +3,20 @@ import { writeFile } from 'fs/promises';
 import { relative } from 'path';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { SingleSwitcher, BlockSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
+import { loadConfig, BlockSelector, type BaseSelector } from '@lsst/pik-core';
 import { Scanner, type FileResult } from '../scanner.js';
 import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js'; // Import for type augmentation
 
 interface SelectorChoice {
   file: FileResult;
-  selector: Selector;
+  selector: BaseSelector;
 }
 
 const BACK_VALUE = Symbol('back');
 
 function isExitPromptError(error: unknown): boolean {
   return error instanceof Error && error.name === 'ExitPromptError';
-}
-
-/**
- * Check if a selector uses block options
- */
-function hasBlockOptions(selector: Selector): boolean {
-  return selector.blockOptions.length > 0;
-}
-
-/**
- * Get the active option name for a selector (works for both single and block options)
- */
-function getActiveOptionName(selector: Selector): string | null {
-  if (hasBlockOptions(selector)) {
-    return selector.blockOptions.find((b) => b.isActive)?.name ?? null;
-  }
-  return selector.options.find((o) => o.isActive)?.name ?? null;
-}
-
-/**
- * Get all options for a selector (works for both single and block options)
- */
-function getAllOptions(selector: Selector): Array<{ name: string; isActive: boolean }> {
-  if (hasBlockOptions(selector)) {
-    return selector.blockOptions.map((b) => ({ name: b.name, isActive: b.isActive }));
-  }
-  return selector.options.map((o) => ({ name: o.name, isActive: o.isActive }));
 }
 
 export const switchCommand = new Command('switch')
@@ -80,9 +53,9 @@ export const switchCommand = new Command('switch')
           choices: [
             ...choices.map((choice) => {
               const relativePath = relative(process.cwd(), choice.file.path);
-              const activeOptionName = getActiveOptionName(choice.selector);
+              const activeOptionName = choice.selector.getActiveOptionName();
               const current = activeOptionName ? pc.dim(` (${activeOptionName})`) : '';
-              const blockIndicator = hasBlockOptions(choice.selector) ? pc.dim(' [block]') : '';
+              const blockIndicator = choice.selector instanceof BlockSelector ? pc.dim(' [block]') : '';
 
               return {
                 name: `${choice.selector.name}${blockIndicator}${current} ${pc.dim(`- ${relativePath}`)}`,
@@ -106,13 +79,12 @@ export const switchCommand = new Command('switch')
 
       // Select which option to activate
       let selectedOption: string | typeof BACK_VALUE;
-      const allOptions = getAllOptions(selectedChoice.selector);
 
       try {
         selectedOption = await select({
           message: `Select option for ${pc.bold(selectedChoice.selector.name)}`,
           choices: [
-            ...allOptions.map((option) => ({
+            ...selectedChoice.selector.options.map((option) => ({
               name: option.isActive ? `${option.name} ${pc.green('(current)')}` : option.name,
               value: option.name as string | typeof BACK_VALUE,
             })),
@@ -131,25 +103,12 @@ export const switchCommand = new Command('switch')
         continue; // Go back to selector selection
       }
 
-      // Apply the change using the appropriate switcher
-      let newContent: string;
-
-      if (hasBlockOptions(selectedChoice.selector)) {
-        const switcher = BlockSwitcher.forFilePath(selectedChoice.file.path);
-        newContent = switcher.switch(
-          selectedChoice.file.content,
-          selectedChoice.selector,
-          selectedOption
-        );
-      } else {
-        const switcher = SingleSwitcher.forFilePath(selectedChoice.file.path);
-        newContent = switcher.switch(
-          selectedChoice.file.content,
-          selectedChoice.selector,
-          selectedOption
-        );
-      }
-
+      // Apply the change
+      const newContent = selectedChoice.selector.switchTo(
+        selectedChoice.file.content,
+        selectedOption,
+        selectedChoice.file.path
+      );
       await writeFile(selectedChoice.file.path, newContent);
 
       const relativePath = relative(process.cwd(), selectedChoice.file.path);

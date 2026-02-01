@@ -1,11 +1,11 @@
 import { readFile } from 'fs/promises';
 import { glob } from 'glob';
-import { Parser, type Selector } from '@lsst/pik-core';
+import { Parser, type BaseSelector } from '@lsst/pik-core';
 import type { SelectConfig } from './types.js';
 
 export interface FileResult {
   path: string;
-  selectors: Selector[];
+  selectors: BaseSelector[];
   content: string;
 }
 

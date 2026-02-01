@@ -1,4 +1,4 @@
-import type { Selector } from './types/index.js';
+import type { BlockSelector } from './types/index.js';
 import { CommentStyle } from './types/index.js';
 import { CommentManipulator } from './comment-manipulator.js';
 
@@ -18,19 +18,19 @@ export class BlockSwitcher extends CommentManipulator {
    * - Selected block: all content lines uncommented
    * - Other blocks: all content lines commented
    */
-  switch(content: string, selector: Selector, blockName: string): string {
+  switch(content: string, selector: BlockSelector, blockName: string): string {
     this.validateBlockOption(selector, blockName);
 
     const lines = content.split('\n');
 
     // Detect if any block uses block comment style
-    const useBlockStyle = selector.blockOptions.some((block) => {
+    const useBlockStyle = selector.options.some((block) => {
       if (block.contentLines.length === 0) return false;
       const line = lines[block.contentLines[0] - 1];
       return this.isBlockCommented(line);
     });
 
-    for (const block of selector.blockOptions) {
+    for (const block of selector.options) {
       for (const lineNum of block.contentLines) {
         const lineIndex = lineNum - 1;
         const line = lines[lineIndex];
@@ -49,8 +49,8 @@ export class BlockSwitcher extends CommentManipulator {
   /**
    * Validate that the block option exists in the selector
    */
-  private validateBlockOption(selector: Selector, blockName: string): void {
-    const block = selector.blockOptions.find((b) => b.name === blockName);
+  private validateBlockOption(selector: BlockSelector, blockName: string): void {
+    const block = selector.options.find((b) => b.name === blockName);
     if (!block) {
       throw new Error(
         `Block option "${blockName}" not found in selector "${selector.name}"`

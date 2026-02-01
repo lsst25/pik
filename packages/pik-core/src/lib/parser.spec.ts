@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Parser } from './parser.js';
+import { Selector, BlockSelector } from './types/index.js';
 
 describe('Parser', () => {
   describe('forFilePath', () => {
@@ -15,8 +16,9 @@ API_URL=https://api.example.com  # @pik:option Production
 
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('API');
-      expect(result.selectors[0].options[0].isActive).toBe(false);
-      expect(result.selectors[0].options[1].isActive).toBe(true);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].isActive).toBe(false);
+      expect(selector.options[1].isActive).toBe(true);
     });
 
     it('should parse .env.local files with hash comments', () => {
@@ -30,8 +32,9 @@ DB_HOST=db.example.com  # @pik:option Production
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
-      expect(result.selectors[0].options[0].isActive).toBe(false);
-      expect(result.selectors[0].options[1].isActive).toBe(true);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].isActive).toBe(false);
+      expect(selector.options[1].isActive).toBe(true);
     });
 
     it('should parse .env.development files with hash comments', () => {
@@ -45,7 +48,8 @@ DEBUG=true  # @pik:option Debug
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
-      expect(result.selectors[0].options[0].isActive).toBe(true);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].isActive).toBe(true);
     });
 
     it('should parse regular .ts files with slash comments', () => {
@@ -59,8 +63,9 @@ const env = 'dev'; // @pik:option Dev
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
-      expect(result.selectors[0].options[0].isActive).toBe(true);
-      expect(result.selectors[0].options[1].isActive).toBe(false);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].isActive).toBe(true);
+      expect(selector.options[1].isActive).toBe(false);
     });
   });
 
@@ -78,7 +83,8 @@ const env = LOCAL;     // @pik:option LOCAL
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('Environment');
       expect(result.selectors[0].line).toBe(1);
-      expect(result.selectors[0].options).toHaveLength(2);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options).toHaveLength(2);
     });
 
     it('should detect active and inactive options', () => {
@@ -91,7 +97,8 @@ const env = LOCAL;     // @pik:option LOCAL
       const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
-      const [devOption, localOption] = result.selectors[0].options;
+      const selector = result.selectors[0] as Selector;
+      const [devOption, localOption] = selector.options;
 
       expect(devOption.name).toBe('DEV');
       expect(devOption.isActive).toBe(false);
@@ -130,8 +137,9 @@ export MODE=production     # @pik:option production
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
-      expect(result.selectors[0].options[0].isActive).toBe(false);
-      expect(result.selectors[0].options[1].isActive).toBe(true);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].isActive).toBe(false);
+      expect(selector.options[1].isActive).toBe(true);
     });
 
     it('should handle JS comments in HTML files', () => {
@@ -148,10 +156,11 @@ export MODE=production     # @pik:option production
 
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('Api');
-      expect(result.selectors[0].options[0].name).toBe('Develop');
-      expect(result.selectors[0].options[0].isActive).toBe(true);
-      expect(result.selectors[0].options[1].name).toBe('Local');
-      expect(result.selectors[0].options[1].isActive).toBe(false);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options[0].name).toBe('Develop');
+      expect(selector.options[0].isActive).toBe(true);
+      expect(selector.options[1].name).toBe('Local');
+      expect(selector.options[1].isActive).toBe(false);
     });
 
     it('should handle HTML block comments', () => {
@@ -166,11 +175,12 @@ export MODE=production     # @pik:option production
 
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('Theme');
-      expect(result.selectors[0].options).toHaveLength(2);
-      expect(result.selectors[0].options[0].name).toBe('Dark');
-      expect(result.selectors[0].options[0].isActive).toBe(true);
-      expect(result.selectors[0].options[1].name).toBe('Light');
-      expect(result.selectors[0].options[1].isActive).toBe(false);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options).toHaveLength(2);
+      expect(selector.options[0].name).toBe('Dark');
+      expect(selector.options[0].isActive).toBe(true);
+      expect(selector.options[1].name).toBe('Light');
+      expect(selector.options[1].isActive).toBe(false);
     });
 
     it('should handle mixed JS and HTML comments in HTML files', () => {
@@ -217,9 +227,10 @@ export MODE=production     # @pik:option production
 
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('Viewer');
-      expect(result.selectors[0].options).toHaveLength(2);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options).toHaveLength(2);
 
-      const [developV2, local] = result.selectors[0].options;
+      const [developV2, local] = selector.options;
 
       // DevelopV2: marker on line 2, content on line 3
       expect(developV2.name).toBe('DevelopV2');
@@ -249,7 +260,8 @@ export MODE=production
       const result = parser.parse(content);
 
       expect(result.selectors).toHaveLength(1);
-      const [prod, dev] = result.selectors[0].options;
+      const selector = result.selectors[0] as Selector;
+      const [prod, dev] = selector.options;
 
       expect(prod.name).toBe('Production');
       expect(prod.line).toBe(2);
@@ -271,7 +283,8 @@ const env = 'dev'; // @pik:option Dev
       const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
-      const option = result.selectors[0].options[0];
+      const selector = result.selectors[0] as Selector;
+      const option = selector.options[0];
       expect(option.line).toBe(2);
       expect(option.contentLine).toBe(2);
     });
@@ -296,10 +309,11 @@ PORT=3000
 
       expect(result.selectors).toHaveLength(1);
       expect(result.selectors[0].name).toBe('Environment');
-      expect(result.selectors[0].options).toHaveLength(0);
-      expect(result.selectors[0].blockOptions).toHaveLength(2);
+      expect(result.selectors[0]).toBeInstanceOf(BlockSelector);
+      const selector = result.selectors[0] as BlockSelector;
+      expect(selector.options).toHaveLength(2);
 
-      const [dev, prod] = result.selectors[0].blockOptions;
+      const [dev, prod] = selector.options;
 
       expect(dev.name).toBe('Development');
       expect(dev.startLine).toBe(2);
@@ -330,7 +344,8 @@ PORT=443
       const parser = Parser.forFilePath('test.sh');
       const result = parser.parse(content);
 
-      const [dev, prod] = result.selectors[0].blockOptions;
+      const selector = result.selectors[0] as BlockSelector;
+      const [dev, prod] = selector.options;
 
       expect(dev.isActive).toBe(false);
       expect(prod.isActive).toBe(true);
@@ -348,9 +363,10 @@ PORT=443
       const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
-      expect(result.selectors[0].blockOptions).toHaveLength(2);
-      expect(result.selectors[0].blockOptions[0].contentLines).toEqual([]);
-      expect(result.selectors[0].blockOptions[0].isActive).toBe(false);
+      const selector = result.selectors[0] as BlockSelector;
+      expect(selector.options).toHaveLength(2);
+      expect(selector.options[0].contentLines).toEqual([]);
+      expect(selector.options[0].isActive).toBe(false);
     });
 
     it('should handle single-line blocks', () => {
@@ -367,7 +383,8 @@ const x = 1;
       const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
-      const [a, b] = result.selectors[0].blockOptions;
+      const selector = result.selectors[0] as BlockSelector;
+      const [a, b] = selector.options;
 
       expect(a.contentLines).toEqual([3]);
       expect(a.isActive).toBe(true);
@@ -392,9 +409,10 @@ const x = 1;
       const parser = Parser.forFilePath('test.html');
       const result = parser.parse(content);
 
-      expect(result.selectors[0].blockOptions).toHaveLength(2);
+      const selector = result.selectors[0] as BlockSelector;
+      expect(selector.options).toHaveLength(2);
 
-      const [dev, prod] = result.selectors[0].blockOptions;
+      const [dev, prod] = selector.options;
 
       expect(dev.name).toBe('Dev');
       expect(dev.isActive).toBe(true);
@@ -403,7 +421,7 @@ const x = 1;
       expect(prod.isActive).toBe(false);
     });
 
-    it('should initialize blockOptions as empty array for selectors without blocks', () => {
+    it('should create Selector for single-line options and BlockSelector for block options', () => {
       const content = `
 // @pik:select Env
 const env = 'dev'; // @pik:option Dev
@@ -413,8 +431,10 @@ const env = 'dev'; // @pik:option Dev
       const parser = Parser.forFilePath('test.ts');
       const result = parser.parse(content);
 
-      expect(result.selectors[0].blockOptions).toEqual([]);
-      expect(result.selectors[0].options).toHaveLength(2);
+      expect(result.selectors[0]).toBeInstanceOf(Selector);
+      expect(result.selectors[0]).not.toBeInstanceOf(BlockSelector);
+      const selector = result.selectors[0] as Selector;
+      expect(selector.options).toHaveLength(2);
     });
   });
 });

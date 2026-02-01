@@ -3,7 +3,12 @@
     "allow": [
       "mcp__memento__semantic_search",
       "mcp__nx-mcp__nx_workspace",
-      "mcp__nx-mcp__nx_project_details"
+      "mcp__nx-mcp__nx_project_details",
+      "mcp__nx-mcp__nx_workspace_path",
+      "mcp__repomix__file_system_read_directory",
+      "Bash(nx run:*)",
+      "Bash(nx show:*)",
+      "Bash(nx run-many:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

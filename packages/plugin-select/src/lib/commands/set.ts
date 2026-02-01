@@ -2,17 +2,10 @@ import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { relative } from 'path';
 import pc from 'picocolors';
-import { SingleSwitcher, BlockSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
+import { loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
 import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js'; // Import for type augmentation
-
-/**
- * Check if a selector uses block options
- */
-function hasBlockOptions(selector: Selector): boolean {
-  return selector.blockOptions.length > 0;
-}
 
 export const setCommand = new Command('set')
   .description('Set a specific option for a selector')
@@ -34,16 +27,7 @@ export const setCommand = new Command('set')
         found = true;
 
         try {
-          let newContent: string;
-
-          if (hasBlockOptions(selector)) {
-            const switcher = BlockSwitcher.forFilePath(file.path);
-            newContent = switcher.switch(file.content, selector, optionName);
-          } else {
-            const switcher = SingleSwitcher.forFilePath(file.path);
-            newContent = switcher.switch(file.content, selector, optionName);
-          }
-
+          const newContent = selector.switchTo(file.content, optionName, file.path);
           await writeFile(file.path, newContent);
 
           const relativePath = relative(process.cwd(), file.path);

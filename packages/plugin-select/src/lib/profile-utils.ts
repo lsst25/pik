@@ -1,41 +1,14 @@
-import type { Selector } from '@lsst/pik-core';
+import type { BaseSelector } from '@lsst/pik-core';
 import type { FileResult } from './scanner.js';
 import type { ProfileMapping, ProfilesConfig } from './types.js';
 import type { ProfileStatus, SelectorMappingStatus } from './types/profile-status.js';
-
-/**
- * Check if a selector uses block options
- */
-export function hasBlockOptions(selector: Selector): boolean {
-  return selector.blockOptions.length > 0;
-}
-
-/**
- * Get the active option name for a selector (works for both single and block options)
- */
-export function getActiveOptionName(selector: Selector): string | null {
-  if (hasBlockOptions(selector)) {
-    return selector.blockOptions.find((b) => b.isActive)?.name ?? null;
-  }
-  return selector.options.find((o) => o.isActive)?.name ?? null;
-}
-
-/**
- * Get all options for a selector (works for both single and block options)
- */
-export function getAllOptions(selector: Selector): Array<{ name: string; isActive: boolean }> {
-  if (hasBlockOptions(selector)) {
-    return selector.blockOptions.map((b) => ({ name: b.name, isActive: b.isActive }));
-  }
-  return selector.options.map((o) => ({ name: o.name, isActive: o.isActive }));
-}
 
 /**
  * Result of finding a selector by name
  */
 export interface FoundSelector {
   file: FileResult;
-  selector: Selector;
+  selector: BaseSelector;
 }
 
 /**
@@ -79,9 +52,8 @@ export function computeProfileStatus(
       continue;
     }
 
-    const currentOption = getActiveOptionName(found.selector);
-    const allOptions = getAllOptions(found.selector);
-    const optionExists = allOptions.some((o) => o.name === expectedOption);
+    const currentOption = found.selector.getActiveOptionName();
+    const optionExists = found.selector.optionExists(expectedOption);
 
     if (!optionExists) {
       mappings.push({

@@ -1,5 +1,11 @@
-import type { BlockOption, Option, ParseResult, Selector } from './types/index.js';
+import type { BlockOption, Option, ParseResult } from './types/index.js';
+import { BaseSelector, Selector, BlockSelector } from './types/index.js';
 import { CommentStyle } from './types/index.js';
+
+interface PendingSelector {
+  name: string;
+  line: number;
+}
 
 /**
  * Parser for pik selectors and options in source files
@@ -24,8 +30,9 @@ export class Parser {
    */
   parse(content: string): ParseResult {
     const lines = content.split('\n');
-    const selectors: Selector[] = [];
-    let currentSelector: Selector | null = null;
+    const selectors: BaseSelector[] = [];
+    let currentSelector: Selector | BlockSelector | null = null;
+    let pendingSelector: PendingSelector | null = null;
     let currentBlock: { name: string; startLine: number; contentLines: number[] } | null = null;
 
     for (let i = 0; i < lines.length; i++) {
@@ -35,19 +42,21 @@ export class Parser {
       // Check for selector
       const selectMatch = line.match(Parser.SELECT_REGEX);
       if (selectMatch) {
-        currentSelector = {
-          name: selectMatch[1],
-          line: lineNumber,
-          options: [],
-          blockOptions: [],
-        };
-        selectors.push(currentSelector);
+        // Save pending selector info - we'll create the actual instance when we know the type
+        pendingSelector = { name: selectMatch[1], line: lineNumber };
+        currentSelector = null;
         continue;
       }
 
       // Check for block-start
       const blockStartMatch = line.match(Parser.BLOCK_START_REGEX);
-      if (blockStartMatch && currentSelector) {
+      if (blockStartMatch && (pendingSelector || currentSelector instanceof BlockSelector)) {
+        // First block option - create a BlockSelector
+        if (!currentSelector && pendingSelector) {
+          currentSelector = new BlockSelector(pendingSelector.name, pendingSelector.line);
+          selectors.push(currentSelector);
+          pendingSelector = null;
+        }
         currentBlock = {
           name: blockStartMatch[1],
           startLine: lineNumber,
@@ -58,7 +67,7 @@ export class Parser {
 
       // Check for block-end
       const blockEndMatch = line.match(Parser.BLOCK_END_REGEX);
-      if (blockEndMatch && currentSelector && currentBlock) {
+      if (blockEndMatch && currentSelector instanceof BlockSelector && currentBlock) {
         // Determine if block is active by checking if first content line is uncommented
         const isActive = currentBlock.contentLines.length > 0
           ? !this.isLineCommented(lines[currentBlock.contentLines[0] - 1])
@@ -71,7 +80,7 @@ export class Parser {
           contentLines: currentBlock.contentLines,
           isActive,
         };
-        currentSelector.blockOptions.push(blockOption);
+        currentSelector.options.push(blockOption);
         currentBlock = null;
         continue;
       }
@@ -84,31 +93,40 @@ export class Parser {
 
       // Check for option (single-line)
       const optionMatch = line.match(Parser.OPTION_REGEX);
-      if (optionMatch && currentSelector) {
-        // Check if this is a standalone marker (marker only on its own line)
-        const isStandalone = this.isStandaloneMarker(line);
+      if (optionMatch && (pendingSelector || currentSelector instanceof Selector)) {
+        // First single-line option - create a Selector
+        if (!currentSelector && pendingSelector) {
+          currentSelector = new Selector(pendingSelector.name, pendingSelector.line);
+          selectors.push(currentSelector);
+          pendingSelector = null;
+        }
 
-        if (isStandalone && i + 1 < lines.length) {
-          // Standalone marker: content is on the next line
-          const contentLine = lines[i + 1];
-          const option: Option = {
-            name: optionMatch[1],
-            line: lineNumber,
-            contentLine: lineNumber + 1,
-            content: contentLine,
-            isActive: !this.isLineCommented(contentLine),
-          };
-          currentSelector.options.push(option);
-        } else {
-          // Inline marker: content is on the same line
-          const option: Option = {
-            name: optionMatch[1],
-            line: lineNumber,
-            contentLine: lineNumber,
-            content: line,
-            isActive: !this.isLineCommented(line),
-          };
-          currentSelector.options.push(option);
+        if (currentSelector instanceof Selector) {
+          // Check if this is a standalone marker (marker only on its own line)
+          const isStandalone = this.isStandaloneMarker(line);
+
+          if (isStandalone && i + 1 < lines.length) {
+            // Standalone marker: content is on the next line
+            const contentLine = lines[i + 1];
+            const option: Option = {
+              name: optionMatch[1],
+              line: lineNumber,
+              contentLine: lineNumber + 1,
+              content: contentLine,
+              isActive: !this.isLineCommented(contentLine),
+            };
+            currentSelector.options.push(option);
+          } else {
+            // Inline marker: content is on the same line
+            const option: Option = {
+              name: optionMatch[1],
+              line: lineNumber,
+              contentLine: lineNumber,
+              content: line,
+              isActive: !this.isLineCommented(line),
+            };
+            currentSelector.options.push(option);
+          }
         }
       }
     }

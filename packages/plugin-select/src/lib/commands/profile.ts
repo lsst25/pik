@@ -3,13 +3,11 @@ import { writeFile, readFile } from 'fs/promises';
 import { relative } from 'path';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { SingleSwitcher, BlockSwitcher, loadConfig, Parser } from '@lsst/pik-core';
+import { loadConfig, Parser, type BaseSelector } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
 import {
   computeAllProfileStatuses,
   findSelectorByName,
-  getAllOptions,
-  hasBlockOptions,
 } from '../profile-utils.js';
 import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import type { ProfileMapping } from '../types.js';
@@ -135,7 +133,7 @@ async function applyProfile(
   // Group changes by file to minimize re-reads
   const changesByFile = new Map<
     string,
-    Array<{ selectorName: string; optionName: string; selector: import('@lsst/pik-core').Selector }>
+    Array<{ selectorName: string; optionName: string; selector: BaseSelector }>
   >();
 
   for (const [selectorName, optionName] of Object.entries(mapping)) {
@@ -152,11 +150,10 @@ async function applyProfile(
       continue;
     }
 
-    const allOptions = getAllOptions(found.selector);
-    const optionExists = allOptions.some((o) => o.name === optionName);
+    const optionExists = found.selector.optionExists(optionName);
 
     if (!optionExists) {
-      const availableOptions = allOptions.map((o) => o.name).join(', ');
+      const availableOptions = found.selector.options.map((o) => o.name).join(', ');
       applyResults.push({
         selectorName,
         optionName,
@@ -207,13 +204,7 @@ async function applyProfile(
           continue;
         }
 
-        if (hasBlockOptions(freshSelector)) {
-          const switcher = BlockSwitcher.forFilePath(filePath);
-          content = switcher.switch(content, freshSelector, change.optionName);
-        } else {
-          const switcher = SingleSwitcher.forFilePath(filePath);
-          content = switcher.switch(content, freshSelector, change.optionName);
-        }
+        content = freshSelector.switchTo(content, change.optionName, filePath);
 
         applyResults.push({
           selectorName: change.selectorName,
