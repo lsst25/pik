@@ -5,6 +5,7 @@ import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
 import { SingleSwitcher, BlockSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
 import { Scanner, type FileResult } from '../scanner.js';
+import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js'; // Import for type augmentation
 
 interface SelectorChoice {
@@ -50,13 +51,9 @@ export const switchCommand = new Command('switch')
   .description('Interactively switch options')
   .action(async () => {
     const config = await loadConfig();
+    const selectConfig = requireSelectConfig(config);
 
-    if (!config?.select) {
-      console.error(pc.red('No pik config found or missing "select" section'));
-      process.exit(1);
-    }
-
-    const scanner = new Scanner(config.select);
+    const scanner = new Scanner(selectConfig);
     const results = await scanner.scan();
 
     if (results.length === 0) {

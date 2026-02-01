@@ -4,6 +4,7 @@ import { relative } from 'path';
 import pc from 'picocolors';
 import { SingleSwitcher, BlockSwitcher, loadConfig, type Selector } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
+import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js'; // Import for type augmentation
 
 /**
@@ -19,13 +20,9 @@ export const setCommand = new Command('set')
   .argument('<option>', 'Option to activate')
   .action(async (selectorName: string, optionName: string) => {
     const config = await loadConfig();
+    const selectConfig = requireSelectConfig(config);
 
-    if (!config?.select) {
-      console.error(pc.red('No pik config found or missing "select" section'));
-      process.exit(1);
-    }
-
-    const scanner = new Scanner(config.select);
+    const scanner = new Scanner(selectConfig);
     const results = await scanner.scan();
 
     let found = false;

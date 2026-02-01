@@ -3,6 +3,8 @@ import type { PikPlugin } from '@lsst/pik-core';
 import { listCommand } from './commands/list.js';
 import { setCommand } from './commands/set.js';
 import { switchCommand } from './commands/switch.js';
+import { profileCommand } from './commands/profile.js';
+import { profilesCommand } from './commands/profiles.js';
 
 export const selectPlugin: PikPlugin = {
   name: 'Select',
@@ -20,6 +22,8 @@ export const selectPlugin: PikPlugin = {
     selectCmd.addCommand(listCommand);
     selectCmd.addCommand(setCommand);
     selectCmd.addCommand(switchCommand);
+    selectCmd.addCommand(profileCommand);
+    selectCmd.addCommand(profilesCommand);
 
     // Default action: run interactive switch
     selectCmd.action(async () => {

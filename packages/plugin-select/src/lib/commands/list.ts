@@ -3,6 +3,7 @@ import pc from 'picocolors';
 import { relative } from 'path';
 import { loadConfig, type Selector } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
+import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js'; // Import for type augmentation
 
 interface ListOptions {
@@ -42,17 +43,9 @@ export const listCommand = new Command('list')
   .option('--json', 'Output in JSON format')
   .action(async (options: ListOptions) => {
     const config = await loadConfig();
+    const selectConfig = requireSelectConfig(config, options);
 
-    if (!config?.select) {
-      if (options.json) {
-        console.log(JSON.stringify({ error: 'No pik config found or missing "select" section' }));
-      } else {
-        console.error(pc.red('No pik config found or missing "select" section'));
-      }
-      process.exit(1);
-    }
-
-    const scanner = new Scanner(config.select);
+    const scanner = new Scanner(selectConfig);
     const results = await scanner.scan();
 
     if (options.json) {
