@@ -1,3 +1,13 @@
+## 0.8.0 (2026-02-01)
+
+### 🚀 Features
+
+- **plugin-select:** add profiles feature for batch selector switching ([3832864](https://github.com/lsst25/pik/commit/3832864))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.7.0 (2026-01-27)
 
 ### 🚀 Features
