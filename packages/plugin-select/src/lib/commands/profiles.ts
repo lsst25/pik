@@ -3,7 +3,7 @@ import { relative } from 'path';
 import pc from 'picocolors';
 import { loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
-import { computeAllProfileStatuses } from '../profile-utils.js';
+import { Profile } from '../profile/index.js';
 import { requireSelectConfig } from '../validation/requireSelectConfig.js';
 import '../types.js';
 
@@ -31,7 +31,7 @@ export const profilesCommand = new Command('profiles')
 
     const scanner = new Scanner(selectConfig);
     const results = await scanner.scan();
-    const statuses = computeAllProfileStatuses(profiles, results);
+    const statuses = Profile.computeAllStatuses(profiles, results);
 
     if (options.json) {
       const jsonOutput = statuses.map((status) => ({

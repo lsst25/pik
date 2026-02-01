@@ -1,28 +1,15 @@
 import { Command } from 'commander';
-import { writeFile, readFile } from 'fs/promises';
 import { relative } from 'path';
 import { select, Separator } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { loadConfig, Parser, type BaseSelector } from '@lsst/pik-core';
+import { loadConfig } from '@lsst/pik-core';
 import { Scanner } from '../scanner.js';
-import {
-  computeAllProfileStatuses,
-  findSelectorByName,
-} from '../profile-utils.js';
+import { Profile } from '../profile/index.js';
 import { requireSelectConfig } from '../validation/requireSelectConfig.js';
-import type { ProfileMapping } from '../types.js';
 import '../types.js';
 
 function isExitPromptError(error: unknown): boolean {
   return error instanceof Error && error.name === 'ExitPromptError';
-}
-
-interface ApplyResult {
-  selectorName: string;
-  optionName: string;
-  filePath: string;
-  success: boolean;
-  error?: string;
 }
 
 export const profileCommand = new Command('profile')
@@ -44,7 +31,7 @@ export const profileCommand = new Command('profile')
 
     // If no profile name provided, show interactive picker
     if (!profileName) {
-      const statuses = computeAllProfileStatuses(profiles, results);
+      const statuses = Profile.computeAllStatuses(profiles, results);
 
       try {
         profileName = await select({
@@ -93,7 +80,8 @@ export const profileCommand = new Command('profile')
     }
 
     // Apply the profile
-    const applyResults = await applyProfile(profileMapping, results);
+    const profile = new Profile(profileName, profileMapping);
+    const applyResults = await profile.apply(results);
 
     // Report results
     const successes = applyResults.filter((r) => r.success);
@@ -123,108 +111,3 @@ export const profileCommand = new Command('profile')
       console.log(pc.green(`✓ Applied profile "${profileName}" (${successes.length} selector(s))`));
     }
   });
-
-async function applyProfile(
-  mapping: ProfileMapping,
-  results: import('../scanner.js').FileResult[]
-): Promise<ApplyResult[]> {
-  const applyResults: ApplyResult[] = [];
-
-  // Group changes by file to minimize re-reads
-  const changesByFile = new Map<
-    string,
-    Array<{ selectorName: string; optionName: string; selector: BaseSelector }>
-  >();
-
-  for (const [selectorName, optionName] of Object.entries(mapping)) {
-    const found = findSelectorByName(results, selectorName);
-
-    if (!found) {
-      applyResults.push({
-        selectorName,
-        optionName,
-        filePath: '',
-        success: false,
-        error: `Selector "${selectorName}" not found`,
-      });
-      continue;
-    }
-
-    const optionExists = found.selector.optionExists(optionName);
-
-    if (!optionExists) {
-      const availableOptions = found.selector.options.map((o) => o.name).join(', ');
-      applyResults.push({
-        selectorName,
-        optionName,
-        filePath: found.file.path,
-        success: false,
-        error: `Option "${optionName}" not found. Available: ${availableOptions}`,
-      });
-      continue;
-    }
-
-    const existing = changesByFile.get(found.file.path);
-    if (existing) {
-      existing.push({
-        selectorName,
-        optionName,
-        selector: found.selector,
-      });
-    } else {
-      changesByFile.set(found.file.path, [
-        {
-          selectorName,
-          optionName,
-          selector: found.selector,
-        },
-      ]);
-    }
-  }
-
-  // Apply changes file by file
-  for (const [filePath, changes] of changesByFile) {
-    let content = await readFile(filePath, 'utf-8');
-
-    for (const change of changes) {
-      try {
-        // Re-parse the content to get fresh selector positions after each change
-        const parser = Parser.forFilePath(filePath);
-        const { selectors } = parser.parse(content);
-        const freshSelector = selectors.find((s) => s.name === change.selectorName);
-
-        if (!freshSelector) {
-          applyResults.push({
-            selectorName: change.selectorName,
-            optionName: change.optionName,
-            filePath,
-            success: false,
-            error: `Selector "${change.selectorName}" not found after previous changes`,
-          });
-          continue;
-        }
-
-        content = freshSelector.switchTo(content, change.optionName, filePath);
-
-        applyResults.push({
-          selectorName: change.selectorName,
-          optionName: change.optionName,
-          filePath,
-          success: true,
-        });
-      } catch (error) {
-        applyResults.push({
-          selectorName: change.selectorName,
-          optionName: change.optionName,
-          filePath,
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    await writeFile(filePath, content);
-  }
-
-  return applyResults;
-}

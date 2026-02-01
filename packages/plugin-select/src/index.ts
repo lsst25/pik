@@ -8,10 +8,5 @@ export type { ProfileStatus, SelectorMappingStatus } from './lib/types/profile-s
 // Re-export the Scanner for potential use
 export { Scanner, type FileResult } from './lib/scanner.js';
 
-// Re-export profile utilities
-export {
-  findSelectorByName,
-  computeProfileStatus,
-  computeAllProfileStatuses,
-  type FoundSelector,
-} from './lib/profile-utils.js';
+// Re-export Profile class
+export { Profile, type FoundSelector } from './lib/profile/index.js';
