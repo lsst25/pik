@@ -1,3 +1,13 @@
+## 0.8.1 (2026-04-14)
+
+### 🩹 Fixes
+
+- **plugin-worktree:** copy directories matched by copyFiles glob ([#2](https://github.com/lsst25/pik/issues/2))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.8.0 (2026-02-01)
 
 ### 🚀 Features

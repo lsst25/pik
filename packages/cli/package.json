@@ -1,6 +1,6 @@
 {
   "name": "@lsst/pik",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Extensible CLI toolkit for simplifying developers' everyday tasks like config switching and worktree management",
   "type": "module",
   "license": "MIT",
