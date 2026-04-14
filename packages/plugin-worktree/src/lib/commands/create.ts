@@ -3,7 +3,7 @@ import { input, select, confirm } from '@inquirer/prompts';
 import pc from 'picocolors';
 import { resolve, basename } from 'path';
 import { execSync } from 'child_process';
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, statSync } from 'fs';
 import { glob } from 'glob';
 import { loadConfig } from '@lsst/pik-core';
 import {
@@ -125,20 +125,24 @@ export const createCommand = new Command('create')
       if (worktreeConfig.copyFiles?.length) {
         console.log(pc.dim('Copying files...'));
         for (const pattern of worktreeConfig.copyFiles) {
-          const files = await glob(pattern, { cwd: repoRoot, nodir: true });
-          for (const file of files) {
-            const src = resolve(repoRoot, file);
-            const dest = resolve(worktreePath, file);
+          const matches = await glob(pattern, { cwd: repoRoot });
+          for (const match of matches) {
+            const src = resolve(repoRoot, match);
+            const dest = resolve(worktreePath, match);
             const destDir = resolve(dest, '..');
+
+            if (!existsSync(src)) continue;
 
             if (!existsSync(destDir)) {
               mkdirSync(destDir, { recursive: true });
             }
 
-            if (existsSync(src)) {
+            if (statSync(src).isDirectory()) {
+              cpSync(src, dest, { recursive: true });
+            } else {
               copyFileSync(src, dest);
-              console.log(pc.dim(`  Copied ${file}`));
             }
+            console.log(pc.dim(`  Copied ${match}`));
           }
         }
       }
