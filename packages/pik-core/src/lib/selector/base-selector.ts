@@ -7,6 +7,12 @@ export abstract class BaseSelector {
   /** Options for this selector */
   abstract readonly options: BaseOption[];
 
+  /**
+   * Whether this selector is annotated with `@pik:global` and should be
+   * exposed across projects via the global config. Set by the parser.
+   */
+  isGlobal = false;
+
   constructor(
     /** Selector name (e.g., "Environment") */
     public readonly name: string,

@@ -5,6 +5,7 @@ import { CommentStyle } from './types/index.js';
 interface PendingSelector {
   name: string;
   line: number;
+  isGlobal: boolean;
 }
 
 /**
@@ -12,6 +13,7 @@ interface PendingSelector {
  */
 export class Parser {
   private static readonly SELECT_REGEX = /@pik:select\s+(\S+)/;
+  private static readonly GLOBAL_REGEX = /@pik:global\b/;
   private static readonly OPTION_REGEX = /@pik:option\s+(\S+)/;
   private static readonly BLOCK_START_REGEX = /@pik:block-start\s+(\S+)/;
   private static readonly BLOCK_END_REGEX = /@pik:block-end/;
@@ -42,8 +44,14 @@ export class Parser {
       // Check for selector
       const selectMatch = line.match(Parser.SELECT_REGEX);
       if (selectMatch) {
-        // Save pending selector info - we'll create the actual instance when we know the type
-        pendingSelector = { name: selectMatch[1], line: lineNumber };
+        // Save pending selector info - we'll create the actual instance when we know the type.
+        // An optional `@pik:global` marker on the same line opts this selector into
+        // cross-project visibility (see global config).
+        pendingSelector = {
+          name: selectMatch[1],
+          line: lineNumber,
+          isGlobal: Parser.GLOBAL_REGEX.test(line),
+        };
         currentSelector = null;
         continue;
       }
@@ -54,6 +62,7 @@ export class Parser {
         // First block option - create a BlockSelector
         if (!currentSelector && pendingSelector) {
           currentSelector = new BlockSelector(pendingSelector.name, pendingSelector.line);
+          currentSelector.isGlobal = pendingSelector.isGlobal;
           selectors.push(currentSelector);
           pendingSelector = null;
         }
@@ -97,6 +106,7 @@ export class Parser {
         // First single-line option - create a Selector
         if (!currentSelector && pendingSelector) {
           currentSelector = new Selector(pendingSelector.name, pendingSelector.line);
+          currentSelector.isGlobal = pendingSelector.isGlobal;
           selectors.push(currentSelector);
           pendingSelector = null;
         }
