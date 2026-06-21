@@ -1,3 +1,14 @@
+## 0.9.0 (2026-06-21)
+
+### 🚀 Features
+
+- **select:** expose switches across projects via global config ([ee5c6f3](https://github.com/lsst25/pik/commit/ee5c6f3))
+
+### ❤️ Thank You
+
+- Claude Opus 4.8 (1M context)
+- Yurii Tatar
+
 ## 0.8.1 (2026-04-14)
 
 ### 🩹 Fixes
