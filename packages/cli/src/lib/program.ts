@@ -6,6 +6,7 @@ import { resolve } from 'path';
 import {
   loadConfig,
   findLocalConfig,
+  loadGlobalConfig,
   isValidPlugin,
   type PikPlugin,
 } from '@lsst/pik-core';
@@ -28,22 +29,31 @@ const builtinPlugins: PikPlugin[] = [
 async function getEnabledPlugins(): Promise<PikPlugin[]> {
   const config = await loadConfig();
 
-  if (!config) {
-    // No config - no plugins enabled
+  // A global config with registered projects makes the select plugin usable from
+  // any directory, even with no local pik config present.
+  const globalConfig = await loadGlobalConfig();
+  const hasGlobalSelectors = Boolean(globalConfig?.projects?.length);
+
+  if (!config && !hasGlobalSelectors) {
+    // No local config and nothing exposed globally - no plugins enabled
     return [];
   }
 
   const enabledPlugins: PikPlugin[] = [];
 
-  // Add built-in plugins that have config keys
+  // Add built-in plugins that have config keys (or, for select, are reachable globally)
   for (const plugin of builtinPlugins) {
-    if (plugin.command in config) {
+    const enabledLocally = config ? plugin.command in config : false;
+    const enabledGlobally =
+      plugin.command === selectPlugin.command && hasGlobalSelectors;
+
+    if (enabledLocally || enabledGlobally) {
       enabledPlugins.push(plugin);
     }
   }
 
   // Add external plugins from config
-  if (config.plugins && Array.isArray(config.plugins)) {
+  if (config?.plugins && Array.isArray(config.plugins)) {
     for (const plugin of config.plugins) {
       if (isValidPlugin(plugin)) {
         enabledPlugins.push(plugin);

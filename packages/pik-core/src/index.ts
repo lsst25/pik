@@ -12,6 +12,16 @@ export {
   type PikConfig,
 } from './lib/config.js';
 
+// Global config (cross-project switch visibility)
+export {
+  defineGlobalConfig,
+  loadGlobalConfig,
+  expandHome,
+  globalConfigDir,
+  type GlobalConfig,
+  type GlobalProjectEntry,
+} from './lib/global-config.js';
+
 // Parser
 export { Parser } from './lib/parser.js';
 

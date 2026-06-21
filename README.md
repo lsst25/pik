@@ -117,6 +117,55 @@ pik select profile          # Interactive profile picker
 pik select profile dev      # Apply a profile directly
 ```
 
+#### Global switches (switch from anywhere)
+
+By default `pik select` only sees switches in the current directory's project. A
+user-level **global config** lets you opt specific projects (or individual switches)
+into being listed and set from _any_ directory — handy when driving pik from an
+editor whose working directory isn't the project you want to flip.
+
+Create `~/.config/pik/config.{js,mjs,cjs,json}` (honors `$XDG_CONFIG_HOME`):
+
+```javascript
+// ~/.config/pik/config.js
+export default {
+  projects: [
+    // Whole project: every selector becomes globally visible
+    "~/projects/api-gateway",
+
+    // Or restrict to specific switches
+    { path: "~/projects/web-app", selectors: ["ApiTarget"] },
+
+    // Optional custom label (defaults to the directory name)
+    { path: "~/work/legacy", name: "legacy", selectors: ["Env"] },
+  ],
+};
+```
+
+A switch can also opt in **from its own file** with a `@pik:global` marker on the
+`@pik:select` line — its project still needs to be listed above so pik knows where
+to look:
+
+```bash
+# @pik:select ApiTarget @pik:global
+# @pik:block-start Local
+...
+```
+
+Within a registered project, a selector surfaces globally if the project is listed
+without a `selectors` filter, **or** it is named in `selectors`, **or** it carries
+`@pik:global`. (Use `selectors: []` to expose _only_ the annotated ones.)
+
+Global switches show up in the normal commands, namespaced `project:selector`:
+
+```bash
+pik select list                                  # local + global switches
+pik select set web-app:ApiTarget Production      # routes the write to ~/projects/web-app
+```
+
+Because they flow through the existing `list`/`set` commands, the Neovim picker
+shows them with no extra configuration.
+
 #### Supported File Types
 
 - JavaScript/TypeScript (`.js`, `.ts`, `.jsx`, `.tsx`, `.mjs`, `.mts`) - `//` comments

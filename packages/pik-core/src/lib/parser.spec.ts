@@ -21,6 +21,51 @@ API_URL=https://api.example.com  # @pik:option Production
       expect(selector.options[1].isActive).toBe(true);
     });
 
+    it('should mark a selector global when @pik:global is on the select line', () => {
+      const content = `
+# @pik:select API @pik:global
+# API_URL=http://localhost:3000  # @pik:option Local
+API_URL=https://api.example.com  # @pik:option Production
+`.trim();
+
+      const parser = Parser.forFilePath('/project/.env');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0].name).toBe('API');
+      expect(result.selectors[0].isGlobal).toBe(true);
+    });
+
+    it('should mark a block selector global when @pik:global is on the select line', () => {
+      const content = `
+# @pik:select API @pik:global
+# @pik:block-start Local
+# API_URL=http://localhost:3000
+# @pik:block-end
+# @pik:block-start Production
+API_URL=https://api.example.com
+# @pik:block-end
+`.trim();
+
+      const parser = Parser.forFilePath('/project/.env');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0]).toBeInstanceOf(BlockSelector);
+      expect(result.selectors[0].isGlobal).toBe(true);
+    });
+
+    it('should default isGlobal to false without the annotation', () => {
+      const content = `
+# @pik:select API
+# API_URL=http://localhost:3000  # @pik:option Local
+API_URL=https://api.example.com  # @pik:option Production
+`.trim();
+
+      const parser = Parser.forFilePath('/project/.env');
+      const result = parser.parse(content);
+
+      expect(result.selectors[0].isGlobal).toBe(false);
+    });
+
     it('should parse .env.local files with hash comments', () => {
       const content = `
 # @pik:select Database
