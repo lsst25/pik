@@ -1,3 +1,13 @@
+## 0.10.0 (2026-07-21)
+
+### 🚀 Features
+
+- **plugin-worktree:** add linkFiles option to symlink files into worktrees ([1259de3](https://github.com/lsst25/pik/commit/1259de3))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.9.0 (2026-06-21)
 
 ### 🚀 Features
