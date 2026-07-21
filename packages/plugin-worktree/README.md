@@ -44,11 +44,33 @@ export default defineConfig({
     // Files to copy to new worktrees
     copyFiles: ['.env.local', '.env.development'],
 
+    // Files/dirs to symlink into new worktrees instead of copying.
+    // Useful for large, regenerable directories (caches, deps) that can be
+    // shared with the main repo to save disk space.
+    linkFiles: ['node_modules', '.angular/cache'],
+
     // Command to run after creating worktree
     postCreate: 'npm install',
   },
 });
 ```
+
+### `copyFiles` vs `linkFiles`
+
+- `copyFiles` makes an independent copy in the worktree — safe to diverge from
+  the main repo. Use it for things like `.env` files.
+- `linkFiles` creates a symlink pointing back at the **absolute** path of the
+  source in the main repo. This saves disk for large, regenerable directories
+  (build caches, `node_modules`, `.angular/cache`).
+
+> ⚠️ **A symlinked path is _shared_ with the main repo** — writes from one
+> worktree affect the other. That's the intended win for regenerable caches,
+> but it is shared mutable state, not an isolated copy. Only link things that
+> are safe to share (caches, deps); never link source or env files you intend
+> to diverge per worktree.
+
+If a path appears in both lists, `copyFiles` wins: files are copied first, and
+`linkFiles` skips any destination that already exists.
 
 ## Commands
 

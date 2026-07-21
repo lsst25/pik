@@ -6,6 +6,8 @@ export interface WorktreeConfig {
   baseDir?: string;
   /** Files to copy to new worktrees (supports globs) */
   copyFiles?: string[];
+  /** Files/dirs to symlink into new worktrees instead of copying (supports globs) */
+  linkFiles?: string[];
   /** Command to run after creating worktree (e.g., 'npm install') */
   postCreate?: string;
 }
