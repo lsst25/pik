@@ -1,3 +1,13 @@
+## 0.11.0 (2026-11-26)
+
+### 🚀 Features
+
+- **plugin-worktree:** add --base-dir option to worktree create ([bfc4bcc](https://github.com/lsst25/pik/commit/bfc4bcc))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.10.0 (2026-07-21)
 
 ### 🚀 Features
