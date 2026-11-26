@@ -1,3 +1,13 @@
+## 0.13.2 (2026-11-26)
+
+### 🩹 Fixes
+
+- **plugin-worktree:** do not track the start point of a new branch ([58dd988](https://github.com/lsst25/pik/commit/58dd988))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.13.1 (2026-11-26)
 
 ### 🩹 Fixes
