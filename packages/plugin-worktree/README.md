@@ -22,6 +22,9 @@ pik worktree create my-feature
 # Create new branch
 pik worktree create my-feature -n -b feature/new-thing
 
+# Create in another directory (overrides config baseDir)
+pik worktree create my-feature -b feature/new-thing --base-dir ~/worktrees
+
 # List all worktrees
 pik worktree list
 
@@ -87,6 +90,8 @@ If a path appears in both lists, `copyFiles` wins: files are copied first, and
 |--------|-------------|
 | `-b, --branch <branch>` | Branch to checkout or create |
 | `-n, --new` | Create a new branch |
+| `-d, --base-dir <dir>` | Directory to create the worktree in. Overrides the config `baseDir`. A relative path resolves against the current directory |
+| `-y, --yes` | Skip confirmations (for programmatic use) |
 
 ### Remove Options
 

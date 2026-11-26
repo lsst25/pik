@@ -1,11 +1,11 @@
 import { Command } from 'commander';
 import { input, select, confirm } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { resolve, basename } from 'path';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { loadConfig } from '@lsst/pik-core';
 import { copyFiles, linkFiles } from '../files.js';
+import { resolveWorktreePath } from '../path.js';
 import {
   createWorktree,
   getCurrentBranch,
@@ -20,6 +20,7 @@ interface CreateOptions {
   branch?: string;
   new?: boolean;
   yes?: boolean;
+  baseDir?: string;
 }
 
 export const createCommand = new Command('create')
@@ -29,6 +30,10 @@ export const createCommand = new Command('create')
   .option('-b, --branch <branch>', 'Branch to checkout (or create with -n)')
   .option('-n, --new', 'Create a new branch')
   .option('-y, --yes', 'Skip confirmations (for programmatic use)')
+  .option(
+    '-d, --base-dir <dir>',
+    'Directory to create the worktree in (overrides config baseDir; relative to cwd)'
+  )
   .action(async (name: string | undefined, options: CreateOptions) => {
     try {
       const repoRoot = await getRepoRoot();
@@ -102,9 +107,10 @@ export const createCommand = new Command('create')
       }
 
       // Calculate path
-      const baseDir = worktreeConfig.baseDir ?? '../';
-      const repoName = basename(repoRoot);
-      const worktreePath = resolve(repoRoot, baseDir, `${repoName}-${worktreeName}`);
+      const worktreePath = resolveWorktreePath(repoRoot, worktreeName, {
+        baseDir: options.baseDir,
+        configBaseDir: worktreeConfig.baseDir,
+      });
 
       if (existingPaths.has(worktreePath) || existsSync(worktreePath)) {
         console.error(pc.red(`Path already exists: ${worktreePath}`));
