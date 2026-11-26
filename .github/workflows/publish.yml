@@ -1,6 +1,7 @@
-# Publishes the packages to npm with trusted publishing (OIDC): no npm token, no 2FA prompt.
+# Stages the packages on npm with trusted publishing (OIDC): no npm token, no 2FA prompt.
 # `npm run release:*` bumps versions, writes the changelog, tags and pushes locally,
-# then this workflow publishes the tagged version.
+# then this workflow stages the tagged version. Nothing is public until a maintainer
+# approves the staged versions with 2FA (npmjs.com → Staged Packages, or `npm stage approve`).
 #
 # Each package needs a trusted publisher on npmjs.com:
 # Settings → Trusted publishing → GitHub Actions → lsst25 / pik / publish.yml
@@ -10,7 +11,7 @@ on:
   push:
     tags:
       - 'v*'
-  # Retry a failed publish; versions that are already on npm are skipped.
+  # Retry a failed run; versions that are already published or staged are skipped.
   workflow_dispatch:
 
 permissions:
@@ -35,11 +36,42 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
-      # Trusted publishing needs npm 11.5.1 or later.
+      # Staged publishing needs npm 11.15.0 or later.
       - run: npm --version
 
       - run: npm ci
 
       - run: npx nx run-many -t build
 
-      - run: npx nx release publish
+      # `npm stage` is not workspace-aware, so stage each package from its own directory.
+      - name: Stage packages
+        run: |
+          for dir in packages/*/; do
+            name=$(node -p "require('./${dir}package.json').name")
+            version=$(node -p "require('./${dir}package.json').version")
+
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "Skip $name@$version: already published"
+              continue
+            fi
+
+            echo "Stage $name@$version"
+            if ! output=$(cd "$dir" && npm stage publish 2>&1); then
+              echo "$output"
+              if grep -qi 'previously staged' <<<"$output"; then
+                echo "Skip $name@$version: already staged"
+                continue
+              fi
+              exit 1
+            fi
+            echo "$output"
+          done
+
+      - name: Summary
+        run: |
+          {
+            echo "### Staged on npm"
+            echo
+            echo "Approve the staged versions with 2FA:"
+            echo "npmjs.com → Staged Packages, or \`npm stage list\` and \`npm stage approve <stage-id>\`."
+          } >> "$GITHUB_STEP_SUMMARY"
