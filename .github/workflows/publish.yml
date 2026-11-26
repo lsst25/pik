@@ -58,7 +58,9 @@ jobs:
             echo "Stage $name@$version"
             if ! output=$(cd "$dir" && npm stage publish 2>&1); then
               echo "$output"
-              if grep -qi 'previously staged' <<<"$output"; then
+              # A staged version is not visible to `npm view`; npm answers E409
+              # ("Cannot stage previously published/staged version").
+              if grep -q 'E409' <<<"$output"; then
                 echo "Skip $name@$version: already staged"
                 continue
               fi
