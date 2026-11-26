@@ -1,3 +1,14 @@
+## 0.13.0 (2026-11-26)
+
+### 🚀 Features
+
+- **cli:** load external plugins from the global config ([3cc73e6](https://github.com/lsst25/pik/commit/3cc73e6))
+- **plugin-worktree:** export addWorktree and add --from to worktree create ([a9bf6a5](https://github.com/lsst25/pik/commit/a9bf6a5))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.12.0 (2026-11-26)
 
 This was a version bump only, there were no code changes.
