@@ -220,6 +220,19 @@ export default {
 };
 ```
 
+A plugin in the `plugins` array of the **global** config (`~/.config/pik/config.js`) is available
+in every directory. If the local and the global config have a plugin with the same command, pik
+uses the local one.
+
+```javascript
+// ~/.config/pik/config.js
+import { myPlugin } from "/absolute/path/to/my-plugin/dist/index.js";
+
+export default {
+  plugins: [myPlugin({ enabled: true })],
+};
+```
+
 ### Creating a Plugin
 
 ```typescript

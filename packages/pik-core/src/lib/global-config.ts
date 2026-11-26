@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { homedir } from 'os';
 import { join } from 'path';
 import { pathToFileURL } from 'url';
+import type { PikPlugin } from './types/plugin.js';
 
 /**
  * A project opted into cross-project ("global") switch visibility.
@@ -31,6 +32,8 @@ export type GlobalProjectEntry =
 export interface GlobalConfig {
   /** Projects whose switches may be listed and set from any directory. */
   projects?: GlobalProjectEntry[];
+  /** External plugins that are available in every directory (same shape as a local config's `plugins`). */
+  plugins?: PikPlugin[];
 }
 
 /**
@@ -113,5 +116,7 @@ function normalize(raw: unknown): GlobalConfig | null {
     ? (source.projects as GlobalProjectEntry[])
     : [];
 
-  return { projects };
+  const plugins = Array.isArray(source.plugins) ? (source.plugins as PikPlugin[]) : undefined;
+
+  return plugins ? { projects, plugins } : { projects };
 }

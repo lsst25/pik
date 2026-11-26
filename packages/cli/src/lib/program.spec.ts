@@ -8,6 +8,7 @@ vi.mock('@lsst/pik-core', async () => {
   return {
     ...actual,
     loadConfig: vi.fn(),
+    loadGlobalConfig: vi.fn(),
   };
 });
 
@@ -31,12 +32,20 @@ vi.mock('@lsst/pik-plugin-worktree', () => ({
 
 describe('program', () => {
   let loadConfigMock: ReturnType<typeof vi.fn>;
+  let loadGlobalConfigMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.resetModules();
     const pikCore = await import('@lsst/pik-core');
     loadConfigMock = pikCore.loadConfig as ReturnType<typeof vi.fn>;
+    loadGlobalConfigMock = pikCore.loadGlobalConfig as ReturnType<typeof vi.fn>;
+    // The real global config of the machine must not leak into the tests.
+    loadGlobalConfigMock.mockResolvedValue(null);
   });
+
+  function fakePlugin(command: string, name = command): PikPlugin {
+    return { name, description: `${name} plugin`, command, register: vi.fn() };
+  }
 
   afterEach(() => {
     vi.clearAllMocks();
@@ -62,6 +71,32 @@ describe('program', () => {
 
       expect(plugins).toHaveLength(1);
       expect(plugins[0].command).toBe('select');
+    });
+
+    it('should load external plugins from the global config with no local config', async () => {
+      loadConfigMock.mockResolvedValue(null);
+      loadGlobalConfigMock.mockResolvedValue({ projects: [], plugins: [fakePlugin('work')] });
+
+      const { initializeProgram } = await import('./program.js');
+      const plugins = await initializeProgram();
+
+      expect(plugins.map((p) => p.command)).toEqual(['work']);
+    });
+
+    it('should add global plugins after local ones and let the local plugin win', async () => {
+      loadConfigMock.mockResolvedValue({
+        select: {},
+        plugins: [fakePlugin('work', 'local-work')],
+      });
+      loadGlobalConfigMock.mockResolvedValue({
+        projects: [],
+        plugins: [fakePlugin('work', 'global-work'), fakePlugin('other')],
+      });
+
+      const { initializeProgram } = await import('./program.js');
+      const plugins = await initializeProgram();
+
+      expect(plugins.map((p) => p.name)).toEqual(['Select', 'local-work', 'other']);
     });
 
     it('should load multiple built-in plugins when configured', async () => {

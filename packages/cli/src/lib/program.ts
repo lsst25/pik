@@ -24,7 +24,9 @@ const builtinPlugins: PikPlugin[] = [
 /**
  * Get plugins that are enabled in the config.
  * - Built-in plugins are enabled if their command key exists in config
- * - External plugins from the `plugins` array are added directly
+ * - External plugins from the `plugins` array of the local config and of the
+ *   global config (`~/.config/pik/config.*`) are added directly; for the same
+ *   command, the local plugin wins
  */
 async function getEnabledPlugins(): Promise<PikPlugin[]> {
   const config = await loadConfig();
@@ -33,11 +35,6 @@ async function getEnabledPlugins(): Promise<PikPlugin[]> {
   // any directory, even with no local pik config present.
   const globalConfig = await loadGlobalConfig();
   const hasGlobalSelectors = Boolean(globalConfig?.projects?.length);
-
-  if (!config && !hasGlobalSelectors) {
-    // No local config and nothing exposed globally - no plugins enabled
-    return [];
-  }
 
   const enabledPlugins: PikPlugin[] = [];
 
@@ -52,18 +49,27 @@ async function getEnabledPlugins(): Promise<PikPlugin[]> {
     }
   }
 
-  // Add external plugins from config
-  if (config?.plugins && Array.isArray(config.plugins)) {
-    for (const plugin of config.plugins) {
-      if (isValidPlugin(plugin)) {
-        enabledPlugins.push(plugin);
-      } else {
-        console.error(pc.red('Invalid plugin in config.plugins array'));
-        console.error(
-          pc.dim('Each plugin must have: name, description, command, register'),
-        );
-      }
+  // Add external plugins: local first, then global. Outside a project the global
+  // config file can also be the "local" config, so skip commands already added.
+  const externalPlugins = [
+    ...(Array.isArray(config?.plugins) ? config.plugins : []),
+    ...(globalConfig?.plugins ?? []),
+  ];
+  const commands = new Set(enabledPlugins.map((plugin) => plugin.command));
+
+  for (const plugin of externalPlugins) {
+    if (!isValidPlugin(plugin)) {
+      console.error(pc.red('Invalid plugin in config.plugins array'));
+      console.error(
+        pc.dim('Each plugin must have: name, description, command, register'),
+      );
+      continue;
     }
+    if (commands.has(plugin.command)) {
+      continue;
+    }
+    commands.add(plugin.command);
+    enabledPlugins.push(plugin);
   }
 
   return enabledPlugins;
