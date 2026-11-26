@@ -94,7 +94,9 @@ export async function createWorktree(
   const args = ['worktree', 'add'];
 
   if (options?.newBranch) {
-    args.push('-b', branch);
+    // A new branch must not track its start point (e.g. origin/develop); the
+    // first push sets its own upstream.
+    args.push('--no-track', '-b', branch);
     args.push(path);
     if (options.baseBranch) {
       args.push(options.baseBranch);
