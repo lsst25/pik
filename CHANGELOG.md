@@ -1,3 +1,13 @@
+## 0.13.1 (2026-11-26)
+
+### 🩹 Fixes
+
+- **deps:** update simple-git to 4 and glob to 14 ([6f87bc6](https://github.com/lsst25/pik/commit/6f87bc6))
+
+### ❤️ Thank You
+
+- Yurii Tatar
+
 ## 0.13.0 (2026-11-26)
 
 ### 🚀 Features
