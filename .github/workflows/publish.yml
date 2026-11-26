@@ -1,0 +1,45 @@
+# Publishes the packages to npm with trusted publishing (OIDC): no npm token, no 2FA prompt.
+# `npm run release:*` bumps versions, writes the changelog, tags and pushes locally,
+# then this workflow publishes the tagged version.
+#
+# Each package needs a trusted publisher on npmjs.com:
+# Settings → Trusted publishing → GitHub Actions → lsst25 / pik / publish.yml
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  # Retry a failed publish; versions that are already on npm are skipped.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC token for npm trusted publishing
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm --version
+
+      - run: npm ci
+
+      - run: npx nx run-many -t build
+
+      - run: npx nx release publish
