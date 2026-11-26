@@ -27,10 +27,10 @@
     "!**/*.tsbuildinfo"
   ],
   "dependencies": {
-    "@lsst/pik-core": "*",
     "@inquirer/prompts": "^8.1.0",
+    "@lsst/pik-core": "*",
     "commander": "^14.0.2",
-    "glob": "^10.5.0",
+    "glob": "^14.0.6",
     "picocolors": "^1.1.1"
   }
 }
