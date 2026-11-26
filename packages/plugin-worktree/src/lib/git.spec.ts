@@ -1,4 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { execFileSync } from 'child_process';
+import { mkdtempSync, realpathSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import {
   getGit,
   getRepoRoot,
@@ -6,6 +10,7 @@ import {
   listWorktrees,
   listBranches,
   branchExists,
+  createWorktree,
   isClean,
 } from './git.js';
 
@@ -86,6 +91,48 @@ describe('git utilities', () => {
     it('should return boolean', async () => {
       const result = await isClean();
       expect(typeof result).toBe('boolean');
+    });
+  });
+
+  describe('createWorktree', () => {
+    it('should not track the start point of a new branch', async () => {
+      const root = realpathSync(mkdtempSync(join(tmpdir(), 'pik-wt-')));
+      const run = (cwd: string, ...args: string[]) =>
+        execFileSync('git', args, { cwd, encoding: 'utf-8' }).trim();
+      try {
+        const origin = join(root, 'origin');
+        const clone = join(root, 'app');
+        run(root, 'init', '--quiet', '--initial-branch=develop', origin);
+        run(
+          origin,
+          '-c',
+          'user.name=t',
+          '-c',
+          'user.email=t@t',
+          'commit',
+          '--quiet',
+          '--allow-empty',
+          '-m',
+          'init',
+        );
+        run(root, 'clone', '--quiet', origin, clone);
+
+        await createWorktree(
+          join(root, 'app-x'),
+          'feature/x',
+          { newBranch: true, baseBranch: 'origin/develop' },
+          clone,
+        );
+
+        expect(() =>
+          run(clone, 'rev-parse', '--abbrev-ref', 'feature/x@{upstream}'),
+        ).toThrow();
+        expect(run(clone, 'rev-parse', 'feature/x')).toBe(
+          run(clone, 'rev-parse', 'origin/develop'),
+        );
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
     });
   });
 });
