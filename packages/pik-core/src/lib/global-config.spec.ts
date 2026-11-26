@@ -81,6 +81,21 @@ describe('loadGlobalConfig', () => {
     expect(config?.projects).toEqual(['/a']);
   });
 
+  it('keeps the plugins array next to projects', async () => {
+    withConfig(
+      'config.mjs',
+      `export default { projects: ['/a'], plugins: [{ name: 'P', description: 'd', command: 'p', register() {} }] };`
+    );
+    const config = await loadGlobalConfig();
+    expect(config?.projects).toEqual(['/a']);
+    expect(config?.plugins?.map((p) => p.command)).toEqual(['p']);
+  });
+
+  it('leaves plugins out when the config has none', async () => {
+    withConfig('config.json', JSON.stringify({ projects: ['/a'] }));
+    expect(await loadGlobalConfig()).toEqual({ projects: ['/a'] });
+  });
+
   it('normalizes a config without projects to an empty array', async () => {
     withConfig('config.json', JSON.stringify({}));
     const config = await loadGlobalConfig();

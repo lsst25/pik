@@ -90,6 +90,7 @@ If a path appears in both lists, `copyFiles` wins: files are copied first, and
 |--------|-------------|
 | `-b, --branch <branch>` | Branch to checkout or create |
 | `-n, --new` | Create a new branch |
+| `--from <ref>` | Start point of the new branch (with `-n`). Default: the current branch |
 | `-d, --base-dir <dir>` | Directory to create the worktree in. Overrides the config `baseDir`. A relative path resolves against the current directory |
 | `-y, --yes` | Skip confirmations (for programmatic use) |
 

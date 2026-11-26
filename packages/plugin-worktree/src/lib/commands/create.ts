@@ -1,13 +1,8 @@
 import { Command } from 'commander';
 import { input, select, confirm } from '@inquirer/prompts';
 import pc from 'picocolors';
-import { execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { loadConfig } from '@lsst/pik-core';
-import { copyFiles, linkFiles } from '../files.js';
-import { resolveWorktreePath } from '../path.js';
+import { addWorktree, runPostCreate } from '../add.js';
 import {
-  createWorktree,
   getCurrentBranch,
   getRepoRoot,
   listBranches,
@@ -21,6 +16,7 @@ interface CreateOptions {
   new?: boolean;
   yes?: boolean;
   baseDir?: string;
+  from?: string;
 }
 
 export const createCommand = new Command('create')
@@ -30,6 +26,7 @@ export const createCommand = new Command('create')
   .option('-b, --branch <branch>', 'Branch to checkout (or create with -n)')
   .option('-n, --new', 'Create a new branch')
   .option('-y, --yes', 'Skip confirmations (for programmatic use)')
+  .option('--from <ref>', 'Start point of the new branch (with -n; default: current branch)')
   .option(
     '-d, --base-dir <dir>',
     'Directory to create the worktree in (overrides config baseDir; relative to cwd)'
@@ -37,13 +34,9 @@ export const createCommand = new Command('create')
   .action(async (name: string | undefined, options: CreateOptions) => {
     try {
       const repoRoot = await getRepoRoot();
-      const config = await loadConfig(repoRoot);
-      const worktreeConfig = config?.worktree ?? {};
-
       const currentBranch = await getCurrentBranch(repoRoot);
       const branches = await listBranches(repoRoot);
       const existingWorktrees = await listWorktrees(repoRoot);
-      const existingPaths = new Set(existingWorktrees.map((w) => w.path));
 
       // Determine branch
       let branch = options.branch;
@@ -106,69 +99,31 @@ export const createCommand = new Command('create')
         });
       }
 
-      // Calculate path
-      const worktreePath = resolveWorktreePath(repoRoot, worktreeName, {
+      if (options.from && !isNewBranch) {
+        throw new Error('--from needs --new: it is the start point of the new branch');
+      }
+
+      // Create the worktree; the postCreate command comes back so it can be confirmed.
+      const { path: worktreePath, pendingPostCreate } = await addWorktree({
+        repoRoot,
+        name: worktreeName,
+        branch,
+        newBranch: isNewBranch,
+        from: options.from ?? (isNewBranch ? currentBranch : undefined),
         baseDir: options.baseDir,
-        configBaseDir: worktreeConfig.baseDir,
+        postCreate: 'skip',
       });
 
-      if (existingPaths.has(worktreePath) || existsSync(worktreePath)) {
-        console.error(pc.red(`Path already exists: ${worktreePath}`));
-        process.exit(1);
-      }
-
-      // Create worktree
-      console.log(pc.dim(`Creating worktree at ${worktreePath}...`));
-      await createWorktree(
-        worktreePath,
-        branch,
-        { newBranch: isNewBranch, baseBranch: currentBranch },
-        repoRoot
-      );
-      console.log(pc.green(`✓ Created worktree for branch ${pc.bold(branch)}`));
-
-      // Copy files if configured
-      if (worktreeConfig.copyFiles?.length) {
-        console.log(pc.dim('Copying files...'));
-        await copyFiles(worktreeConfig.copyFiles, repoRoot, worktreePath, (match) =>
-          console.log(pc.dim(`  Copied ${match}`))
-        );
-      }
-
-      // Symlink files/dirs if configured (shared with main repo to save disk).
-      // Runs after copyFiles so a shared path already copied is left untouched,
-      // and before postCreate so shared deps/caches are in place first.
-      if (worktreeConfig.linkFiles?.length) {
-        console.log(pc.dim('Linking files...'));
-        await linkFiles(
-          worktreeConfig.linkFiles,
-          repoRoot,
-          worktreePath,
-          (match) => console.log(pc.dim(`  Linked ${match}`)),
-          (match) => console.log(pc.dim(`  Skipped ${match} (already exists)`))
-        );
-      }
-
-      // Run post-create command if configured
-      if (worktreeConfig.postCreate) {
+      if (pendingPostCreate) {
         const shouldRun =
           options.yes ||
           (await confirm({
-            message: `Run "${worktreeConfig.postCreate}"?`,
+            message: `Run "${pendingPostCreate}"?`,
             default: true,
           }));
 
         if (shouldRun) {
-          console.log(pc.dim(`Running: ${worktreeConfig.postCreate}`));
-          try {
-            execSync(worktreeConfig.postCreate, {
-              cwd: worktreePath,
-              stdio: 'inherit',
-            });
-            console.log(pc.green('✓ Post-create command completed'));
-          } catch {
-            console.log(pc.yellow('⚠ Post-create command failed'));
-          }
+          runPostCreate(pendingPostCreate, worktreePath);
         }
       }
 
